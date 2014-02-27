@@ -3,12 +3,38 @@
 <head>
 	<meta charset="UTF-8">
 	<title>GithubLab</title>
-	<script url="lib/jquery-1.11.0.min.js"></script>
-	<script url="lib/underscore-min.js"></script>
-	<script url="lib/d3.min.js"></script>
+	<script src="lib/jquery-1.11.0.min.js"></script>
+	<script src="lib/underscore-min.js"></script>
+	<script src="lib/backbone-min.js"></script>
+	<script src="lib/d3.min.js"></script>
+	
 	<link rel="stylesheet" href="stylesheets/styles.css">
 </head>
 <body>
 	<h1>GithubLab</h1>
+
+	<section id="form-container">
+		<form id="user-form">
+			<input id="user-name" type="text" name="username" placeholder="Username">
+			<button id="user-submit" type="submit">Search Github</button>
+		</form>
+	</section>
+	<div id="user-container"></div>
+	<ul id="timeline-container"></ul>
+
+	<!-- User Information -->
+	<script id="user-information" type="text/template">
+		<img src="<%= avatar_url %>" title="<%= name %>" alt="<%= name %>">
+	</script>
+	
+	<!-- Commits Box -->
+	<script class="timeline-item" type="text/template">
+		<h1>Pushed <%= total %> commit(s) to <a href="<%= repo_url %>"><%= repo_name %></a></h1>
+		<ul class="commits"></ul>
+		<div><a href="#">more</a></div>
+		<span class="date"><%= date %></span>
+	</script>
+
+	<script src="javascripts/githublab.js"></script>
 </body>
 </html>
