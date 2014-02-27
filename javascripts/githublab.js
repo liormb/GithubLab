@@ -1,8 +1,36 @@
 
-// ---------------- Commit ----------------
-var Commit = Backbone.Model.extend({
+// ---------------- Events ----------------
+var Event = Backbone.Model.extend({
 	initialize: function() {
 		console.log("User Event has been created");
+	}
+});
+
+var EventCollection = Backbone.Model.extend({
+	initialize: function() {
+		console.log("Events are added to collection");
+		this.url = this.get('url');
+		this.fetch({
+			success: this.addEvents
+		});
+	},
+	addEvents: function() {
+		console.log(this);
+	},
+	model: Event
+});
+
+var EventView = Backbone.View.extend({
+
+});
+
+var EventListView = Backbone.View.extend({
+	initialize: function() {
+		this.collection = new EventCollection(params);
+		this.collection.fetch();
+		this.render();
+	},
+	render: function() {
 	}
 });
 
@@ -17,30 +45,40 @@ var Repo = Backbone.Model.extend({
 // ----------------- User -----------------
 var User = Backbone.Model.extend({
 	initialize: function() {
-		console.log("User has been created");
+		var self = this;
+		this.url = "https://api.github.com/users/" + this.get('username');
+		this.fetch({
+			success: function() {
+				events = new EventCollection({ url: self.get('events_url').replace(/{(.*)}/, "/public") });
+				//var events_list_view = new EventListView({collection: events, el: $('#timeline-container')});
+			}
+		});
 	}
 });
 
 var UserCollection = Backbone.Collection.extend({
-	url: "/users",
 	initialize: function() {
-		//this.fetch();
+		console.log("user is added to collection");
 	},
 	model: User
 });
 
 var UserView = Backbone.View.extend({
+	initialize: function() {
+		this.listenTo(this.model, 'all', this.render);
+	},
 	tagName: 'div',
 	template: _.template( $('#user-information').html() ),
 	render: function() {
-		this.$el.html( this.template(this.model.attributes) );
+		this.$el.empty()
+		if (this.model.get('name')) this.$el.html( this.template(this.model.attributes) );
 		return this;
 	}
 });
 
 var UserListView = Backbone.View.extend({
 	initialize: function() {
-		this.listenTo(this.collection, 'add', this.renderUser);
+		this.listenTo(this.collection, 'add', this.render);
 	},
 	renderUser: function(user_instance) {
 		var user_view = new UserView({ model:user_instance });
@@ -50,13 +88,13 @@ var UserListView = Backbone.View.extend({
 	render: function() {
 		this.$el.empty();
 		var self = this;
-		_.each(this.collection.models, function(user) {
+		_.each(this.collection.models, function(user) {	
 			self.renderUser(user);
 		});
 	}
 });
 
-// --------------- User Input ---------------
+// ------------- User Input Form -------------
 var UserFormView = Backbone.View.extend({
   events: {
     'submit': 'submitCallBack'
@@ -64,45 +102,22 @@ var UserFormView = Backbone.View.extend({
   submitCallBack: function(event) {
   	event.preventDefault();
     var username = this.getFormData();
-    fetchUserFromGithub(username.name);
+    user = new User({username: username});
+    this.collection.add( user );
     this.clearForm();
   },
   getFormData: function() {
-    var user_data = { name: this.$('#user-name').val() };
-    return user_data;
+    return this.$('#user-name').val();
   },
   clearForm: function() {
     this.$('input').val('');
   }
 });
 
-function fetchUserFromGithub(username) {
-	$.ajax({
-		url: "https://api.github.com/users/" + username,
-		type: 'GET',
-		dataType: 'json',
-		success: function(data) {
-			console.log(data);
-			var user = new User({
-				name: data.name,
-				company: data.company,
-				location: data.location,
-				avatar_url: data.avatar_url,
-				events_url: data.events_url.replace(/{(.*)}/, "/public"),
-				created_at: data.created_at
-			});
-
-			var users = new UserCollection();
-			var users_list_view = new UserListView({collection: users, el: $('#user-container')});
-			users.add(user);
-		},
-		error: function(data) {
-			console.log("Can not connect to the server");
-		}
-	});
-}
+var user, users, events;
 
 $(function() {
-	var users = new UserCollection();
+	users = new UserCollection;
+	var users_list_view = new UserListView({collection: users, el: $('#user-container')});
 	var user_form = new UserFormView({collection: users, el: $('#user-form')});
 });
