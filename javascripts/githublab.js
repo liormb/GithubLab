@@ -1,14 +1,6 @@
 
 // ---------------- Commit ----------------
 var Commit = Backbone.Model.extend({
-	defaults: {
-		message: '',
-		sha: '',
-		url: '',
-		author: '',
-		repo_name: '',
-		repo_url: ''
-	},
 	initialize: function() {
 		console.log("User Event has been created");
 	}
@@ -17,11 +9,6 @@ var Commit = Backbone.Model.extend({
 
 // -------------- Repository --------------
 var Repo = Backbone.Model.extend({
-	defaults: {
-		id: '',
-		name: '',
-		url: ''
-	},
 	initialize: function() {
 		console.log("User Event has been created");
 	}
@@ -29,14 +16,6 @@ var Repo = Backbone.Model.extend({
 
 // ----------------- User -----------------
 var User = Backbone.Model.extend({
-	defaults: {
-		name: '',
-		company: '',
-		location: '',
-		avatar_url: '',
-		events_url: '',
-		created_at: ''
-	},
 	initialize: function() {
 		console.log("User has been created");
 	}
