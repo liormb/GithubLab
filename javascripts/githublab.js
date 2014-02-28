@@ -31,12 +31,30 @@ var Event = Backbone.Model.extend({
 
 var EventCollection = Backbone.Collection.extend({
 	initialize: function(models, options) {
+		var self = this;
 		// for (var i=1; i <= 30; i++) {
 		// 	this.url = options.events_url + "?page=" + i;
-		// 	this.fetch();
+		// 	this.fetch({
+		// 		success: self.groupByDate
+		//  });
 		// }
 		this.url = options.events_url + "?page=1";
-		this.fetch();
+		this.fetch({
+			success: self.groupByDate
+		});
+	},
+	groupByDate: function(data) {
+		groups = [[]];
+		var commits = data.models;
+		var index = 0;
+		for (var i=1; i < commits.length; i++) {
+			groups[index].push(commits[i-1]);
+			if (timeStampToString(commits[i].attributes.created_at) != 
+				  timeStampToString(commits[i-1].attributes.created_at)) {
+				groups.push([]);
+				index++;
+			}
+		}
 	},
 	model: Event
 });
@@ -46,8 +64,10 @@ var EventView = Backbone.View.extend({
 	template: _.template( $('#timeline-item').html() ),
 	render: function() {
 		this.$el.empty()
-		if (this.model.attributes.type == "PushEvent") {
-			this.$el.html( this.template(this.model.attributes) );
+
+		switch(this.model.attributes.type) {
+			case "PushEvent"  : this.$el.html( this.template(this.model.attributes) ); break;
+			case "CreateEvent": break;
 		}
 		return this;
 	}
@@ -146,7 +166,7 @@ var UserFormView = Backbone.View.extend({
   }
 });
 
-var user, users, events;
+var user, users, events, groups;
 
 $(function() {
 	users = new UserCollection;
