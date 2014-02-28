@@ -28,13 +28,15 @@
 	</script>
 	
 	<!-- Commits Box -->
-	<script class="timeline-item" type="text/template">
-		<h1>Pushed <%= total %> commit(s) to <a href="<%= repo_url %>"><%= repo_name %></a></h1>
-		<ul class="commits"></ul>
-		<div><a href="#">more</a></div>
-		<span class="date"><%= date %></span>
+	<script id="timeline-item" type="text/template">
+		<h4><%= payload.commits[0].message %></h4>
 	</script>
 
 	<script src="javascripts/githublab.js"></script>
 </body>
 </html>
+
+		<!-- <h1>Pushed <%=  %> commit(s) to <a href="<%=  %>"><%=  %></a></h1>
+		<ul class="commits"></ul>
+		<div><a href="#">more</a></div>
+		<span class="date"><%=  %></span> -->
