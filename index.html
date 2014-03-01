@@ -26,17 +26,24 @@
 	<script id="user-information" type="text/template">
 		<img src="<%= avatar_url %>" title="<%= name %>" alt="<%= name %>">
 	</script>
-	
-	<!-- Commits Box -->
+
+	<!-- Commit Group li -->
 	<script id="timeline-item" type="text/template">
-		<h4><%= payload.commits[0].message %></h4>
+		<h3>Pushed <%= events_count %> commit(s) to <a href="<%= repo_url %>"><%= repo %></a></h3>
+	  <ul id="events-container">
+	  	<% _.each(events, function(event){ %>
+	  		<li><%= event.payload.commits[0].message %></li>
+	  	<% }) %>
+	  </ul>
+		<div><a href="#">more</a></div>
+		<span class="date"><%= date %></span>
+	</script>
+
+	<!-- Commits li -->
+	<script id="event-item" type="text/template">
+		<%= payload.commits[0].message %>
 	</script>
 
 	<script src="javascripts/githublab.js"></script>
 </body>
 </html>
-
-		<!-- <h1>Pushed <%=  %> commit(s) to <a href="<%=  %>"><%=  %></a></h1>
-		<ul class="commits"></ul>
-		<div><a href="#">more</a></div>
-		<span class="date"><%=  %></span> -->

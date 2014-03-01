@@ -11,105 +11,169 @@ function timeStampToString(timestamp) {
 	)
 }
 
-// --------------------------------------------
-// ---------------- Repository ----------------
-// --------------------------------------------
+function groupByDate(commits) {
+	var groupsArray = [[]];
+	var index = 0;
+	for (var i=1; i < commits.length; i++) {
+		if (commits[i-1].type == "PushEvent")
+			groupsArray[index].push(commits[i-1]);
+		if (timeStampToString(commits[i].created_at) != timeStampToString(commits[i-1].created_at)) {
+			groupsArray.push([]);
+			index++;
+		}
+	}
+	return groupsArray;
+}
+
+// ------------------------------------------------
+// ------------------ Repository ------------------
+// ------------------------------------------------
 var Repo = Backbone.Model.extend({
 	initialize: function() {
-		console.log("User Repository has been created");
+		//console.log("User Repository has been created");
 	}
 });
 
-// --------------------------------------------
-// ------------------ Events ------------------
-// --------------------------------------------
-var Event = Backbone.Model.extend({
-	initialize: function() {
-		console.log("User Event has been created");
-	}
-});
+// ------------------------------------------------
+// -------------------- Event ---------------------
+// ------------------------------------------------
+var Event = Backbone.Model.extend({});
 
 var EventCollection = Backbone.Collection.extend({
-	initialize: function(models, options) {
-		var self = this;
-		// for (var i=1; i <= 30; i++) {
-		// 	this.url = options.events_url + "?page=" + i;
-		// 	this.fetch({
-		// 		success: self.groupByDate
-		//  });
-		// }
-		this.url = options.events_url + "?page=1";
-		this.fetch({
-			success: self.groupByDate
-		});
-	},
-	groupByDate: function(data) {
-		groups = [[]];
-		var commits = data.models;
-		var index = 0;
-		for (var i=1; i < commits.length; i++) {
-			groups[index].push(commits[i-1]);
-			if (timeStampToString(commits[i].attributes.created_at) != 
-				  timeStampToString(commits[i-1].attributes.created_at)) {
-				groups.push([]);
-				index++;
-			}
-		}
-	},
 	model: Event
 });
 
 var EventView = Backbone.View.extend({
 	tagName: 'li',
-	template: _.template( $('#timeline-item').html() ),
+	template: _.template( $('#event-item').html() ),
 	render: function() {
-		this.$el.empty()
-
-		switch(this.model.attributes.type) {
-			case "PushEvent"  : this.$el.html( this.template(this.model.attributes) ); break;
-			case "CreateEvent": break;
-		}
+		this.$el.html( this.template(this.model.attributes) );
 		return this;
 	}
 });
 
 var EventListView = Backbone.View.extend({
-	initialize: function(options) {
-		this.listenTo(this.collection, 'add', this.render);
-	},
-	renderEvent: function(event_instance) {
-		var event_view = new EventView({ model:event_instance });
+	renderEvent: function(event) {
+		var event_view = new EventView({ model:event });
 		this.$el.prepend( event_view.render().el );
 		return this;
 	},
 	render: function() {
-		this.$el.empty();
 		var self = this;
-		_.each(this.collection.models, function(event_instance) {	
-			self.renderEvent(event_instance);
+		_.each(this.collection.models, function(event) {
+			self.renderEvent(event);
 		});
 	}
 });
 
-// --------------------------------------------
-// ------------------- User -------------------
-// --------------------------------------------
+// ------------------------------------------------
+// ------------------- Timeline -------------------
+// ------------------------------------------------
+var Timeline = Backbone.Model.extend({});
+
+var TimelineCollection = Backbone.Collection.extend({
+	model: Timeline
+});
+
+var TimelineView = Backbone.View.extend({
+	tagName: 'li',
+	template: _.template( $('#timeline-item').html() ),
+	render: function() {
+		this.$el.html( this.template(this.model.attributes) );
+		return this;
+	}
+});
+
+var TimelineListView = Backbone.View.extend({
+	initialize: function(options) {
+		this.collection = options.collection;
+	},
+	renderTimeline: function(group) {
+		var timeline_view = new TimelineView({ model:group });
+		this.$el.append( timeline_view.render().el );
+		return this;
+	},
+	render: function() {
+		var self = this;
+		_.each(this.collection.models, function(group) {
+			self.renderTimeline(group);
+		});
+	}
+});
+
+// ------------------------------------------------
+// ----------------- User Events ------------------
+// ------------------------------------------------
+var UserEvent = Backbone.Model.extend({});
+
+var UserEventCollection = Backbone.Collection.extend({
+	initialize: function(models, options) {
+		if (options) this.url = options.events_url;
+	},
+	groupByDate: function(commits) {
+		var groupsArray = [[]];
+		var index = 0;
+		for (var i=1; i < commits.length; i++) {
+			groupsArray[index].push(commits[i-1]);
+			if (timeStampToString(commits[i].attributes.created_at) != 
+				  timeStampToString(commits[i-1].attributes.created_at)) {
+				groupsArray.push([]);
+				index++;
+			}
+		}
+		return groupsArray;
+	},
+	model: UserEvent
+});
+
+// ------------------------------------------------
+// --------------------- User ---------------------
+// ------------------------------------------------
 var User = Backbone.Model.extend({
 	initialize: function() {
 		this.url = "https://api.github.com/users/" + this.get('username');
 		this.fetch({
 			success: function(user) {
-				events = new EventCollection([], { events_url: user.get('events_url').replace(/{(.*)}/, "/public") });
-				var event_list_view = new EventListView({ collection: events, el: $('#timeline-container') });
+				var responseArray = [];
+				user_events = new UserEventCollection([], { events_url: user.get('events_url').replace(/{(.*)}/, "/public") });
+
+				console.log('Loading...');
+				
+				for (var i=1; i <= 2; i++) {
+					var response = user_events.fetch({ add: true, data: {page: i} });	
+					responseArray.push(response);
+				}
+
+				$.when.apply($, responseArray).done(function() {
+
+					tempArray = [];
+					_.each(responseArray, function(response) {
+						tempArray = tempArray.concat(response.responseJSON);
+					});
+
+					user_groups = groupByDate(tempArray);
+	
+					timelines = [];
+					_.each(user_groups, function(group) {
+						var timeline_item = new Timeline({
+							events_count: group.length,
+							repo: group[0].repo.name,
+							repo_url: group[0].repo.url,
+							events: group,
+							date: timeStampToString(group[0].created_at)
+						});
+						timelines.push(timeline_item);
+					});
+					
+					timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines), el: $('#timeline-container') });
+					timeline_list_view.render();
+				});
 			}
 		});
 	}
 });
 
 var UserCollection = Backbone.Collection.extend({
-	initialize: function() {
-		console.log("user collection was created");
-	},
 	model: User
 });
 
@@ -144,9 +208,9 @@ var UserListView = Backbone.View.extend({
 	}
 });
 
-// --------------------------------------------
-// -------------- User Input Form -------------
-// --------------------------------------------
+// ------------------------------------------------
+// ---------------- User Input Form ---------------
+// ------------------------------------------------
 var UserFormView = Backbone.View.extend({
   events: {
     'submit': 'submitCallBack'
@@ -167,6 +231,8 @@ var UserFormView = Backbone.View.extend({
 });
 
 var user, users, events, groups;
+var user_events, user_groups; 
+var event_list_view, tempArray;
 
 $(function() {
 	users = new UserCollection;

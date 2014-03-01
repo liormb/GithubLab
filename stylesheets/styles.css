@@ -1,3 +1,7 @@
 html {
 	background: rgb(240,240,240);
 }
+#timeline-item > li {
+	margin-bottom: 20px;
+	background: red;
+}
