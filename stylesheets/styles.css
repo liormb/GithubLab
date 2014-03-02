@@ -16,6 +16,7 @@ ul {
 }
 #timeline-container {
 	position: relative;
+	top: 140px;
 	padding: 0;
 }
 #timeline-container > li {
