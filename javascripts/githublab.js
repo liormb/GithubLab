@@ -207,10 +207,12 @@ var User = Backbone.Model.extend({
 					//user_groups = groupByDate(tempArray);
 					user_groups = groupEvents(tempArray);
 
+					user_groups.pop();
+
 					timelines = [];
-					_.each(user_groups, function(group) {
+					_.each(user_groups, function(group, index) {
 						content = function() {
-							var event_type = group[0].type;
+							var event_type = (group != []) ? group[0].type : "";
 							switch (event_type) {
 								case "CommitCommentEvent":
 									return {
@@ -278,7 +280,11 @@ var User = Backbone.Model.extend({
 								case "GollumEvent":
 									return {
 										type: event_type,
-
+										template: "Updated 1 page(s) for aaronwolfe/Big-A-Miner-Thing",
+										page_count: group[0].payload.pages.length,
+										page_name: group[0].payload.pages[0].page_name,
+										repo: group[0].repo.name,
+										repo_url: "https://github.com/" + group[0].repo.name,
 										created_at: timeStampToString(group[0].created_at)										
 									};
 								case "IssueCommentEvent":
@@ -295,6 +301,7 @@ var User = Backbone.Model.extend({
 									return {
 										type: event_type,
 										template: "Opened an issue on ppcoin/ppcoin",
+										issue_url: group[0].payload.issue.html_url,
 										body: group[0].payload.issue.body,
 										title: group[0].payload.issue.title,
 										repo: group[0].repo.name,
@@ -304,7 +311,9 @@ var User = Backbone.Model.extend({
 								case "MemberEvent":
 									return {
 										type: event_type,
-
+										template: "Added as a collaborator to ppcoin/ppcoin",
+										repo: group[0].repo.name,
+										repo_url: "https://github.com/" + group[0].repo.name,
 										created_at: timeStampToString(group[0].created_at)										
 									};
 								case "PublicEvent":
@@ -315,7 +324,7 @@ var User = Backbone.Model.extend({
 									};
 								case "PullRequestEvent":
 									return {
-										type: event_type, //group[0].type.split(/(?=[A-Z])/).slice(0,-1).join(" ")
+										type: event_type,
 										template: "Opened a pull request for emberjs/website",
 										event_type_url: group[0].payload.pull_request.html_url,
 										repo: group[0].repo.name,

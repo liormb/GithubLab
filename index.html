@@ -35,7 +35,39 @@
 
 	<!-- Events -->
 	<script id="timeline-item" class="col-xs-6 col-sm-4" type="text/template">
-		<% if (type == 'PushEvent'){ %>
+		<% if (type == 'CreateEvent'){ %>
+			<h4>Created: <a href="<%= repo_url %>"><%= repo %></a></h4>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'ForkEvent'){ %>
+			<h4>Forked <a href="<%= full_name_url %>"><%= full_name %></a> from <a href="<%= repo_url %>"><%= repo %></a></h4>
+			<h4><%= description %></h4>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'GistEvent'){ %>
+			<h4>Created a <a href="<%= gist_url %>">gist</a></h4>
+			<% if (description != ""){ %>
+				<h4><%= description %></h4>
+			<% } %>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'GollumEvent'){ %>
+			<h4>Updated <%= page_count %> page(s) for </h4><a href="<%= repo_url %>"><%= repo %></a>
+			<h4><%= page_name %></h4>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'IssueCommentEvent'){ %>
+			<h4>Commented on an <a href="<%= issue_url %>">issue</a> on <a href="<%= repo_url %>"><%= repo %></a></h4>
+			<h4><%= issue %></h4>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'IssuesEvent'){ %>
+			<h4>Opened an <a href="<%= issue_url %>">issue</a> on <a href="<%= repo_url %>"><%= repo %></a></h4>
+			<h4><%= body %></h4>
+			<h4><%= title %></h4>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'MemberEvent'){ %>
+			<h4>Added as a collaborator to <a href="<%= repo_url %>"><%= repo %></a></h4>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'PullRequestEvent'){ %>
+			<h4>Opened a <a href="<%= event_type_url %>">pull request</a> for <a href="<%= repo_url %>"><%= repo %></a></h4>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'PushEvent'){ %>
 			<h4>Pushed <%= count %> commit(s) to <a href="<%= repo_url %>"><%= repo %></a></h4>
 	  	<ul id="events-container">
 	  		<% _.each(events, function(event){ %>
@@ -44,9 +76,10 @@
 	  	</ul>
 			<div><a href="#">more</a></div>
 			<span class="date"><%= created_at %></span>
-		<% } else if (type == 'CreateEvent'){ %>
-			<h4>Created: <a href="<%= repo_url %>"><%= repo %></a></h4>
-			<span class="date"><%= created_at %></span>
+		<% } else { %>
+			<h1>EVENT NOT LISTED</h1>
+			<h4><%= type %></h4>
+			<h4><%= index %></h4>
 		<% } %>
 	</script>
 
