@@ -11,6 +11,45 @@ function timeStampToString(timestamp) {
 	)
 }
 
+var eventTypes = [
+	"CommitCommentEvent",
+	"CreateEvent",
+	"DeleteEvent",
+	"DeploymentEvent",
+	"DeploymentStatusEvent",
+	"DownloadEvent",
+	"FollowEvent",
+	"ForkEvent",
+	"ForkApplyEvent",
+	"GistEvent",
+	"GollumEvent",
+	"IssueCommentEvent",
+	"IssuesEvent",
+	"MemberEvent",
+	"PublicEvent",
+	"PullRequestEvent",
+	"PullRequestReviewCommentEvent",
+	"PushEvent",
+	"ReleaseEvent",
+	"StatusEvent",
+	"TeamAddEvent",
+	"WatchEvent"
+];
+
+function groupEvents(events) {
+	var groups = [[]];
+	var index = 0;
+	for (var i=1; i < events.length; i++) {
+		groups[index].push(events[i-1]);
+		if (events[i-1].type != events[i].type ||
+		    timeStampToString(events[i].created_at) != timeStampToString(events[i-1].created_at)) {
+			groups.push([]);
+			index++;
+		}
+	}
+	return groups;
+}
+
 function groupByDate(commits) {
 	var groupsArray = [[]];
 	var index = 0;
@@ -18,6 +57,20 @@ function groupByDate(commits) {
 		if (commits[i-1].type == "PushEvent")
 			groupsArray[index].push(commits[i-1]);
 		if (timeStampToString(commits[i].created_at) != timeStampToString(commits[i-1].created_at)) {
+			groupsArray.push([]);
+			index++;
+		}
+	}
+	return groupsArray;
+}
+
+function groupByEventType(events) {
+	var groupsArray = [[]];
+	var index = 0;
+	
+	for (var i=1; i < events.length; i++) {
+		groupsArray[index].push(events[i-1]);
+		if (events[i-1].type != events[i].type) {
 			groupsArray.push([]);
 			index++;
 		}
@@ -135,7 +188,7 @@ var User = Backbone.Model.extend({
 		this.fetch({
 			success: function(user) {
 				var responseArray = [];
-				user_events = new UserEventCollection([], { events_url: user.get('events_url').replace(/{(.*)}/, "/public") });
+				user_events = new UserEventCollection([], { events_url: user.get('events_url').replace(/{(.*)}/, "") }); // public
 
 				console.log('Loading...');
 				
@@ -151,18 +204,169 @@ var User = Backbone.Model.extend({
 						tempArray = tempArray.concat(response.responseJSON);
 					});
 
-					user_groups = groupByDate(tempArray);
-	
+					//user_groups = groupByDate(tempArray);
+					user_groups = groupEvents(tempArray);
+
 					timelines = [];
 					_.each(user_groups, function(group) {
-						var timeline_item = new Timeline({
-							events_count: group.length,
-							repo: group[0].repo.name,
-							repo_url: group[0].repo.url,
-							events: group,
-							date: timeStampToString(group[0].created_at)
-						});
-						timelines.push(timeline_item);
+						content = function() {
+							var event_type = group[0].type;
+							switch (event_type) {
+								case "CommitCommentEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "CreateEvent":
+									return {
+										type: event_type,
+										template: "Created: shamoons/try_git",
+										repo: group[0].repo.name,
+										repo_url: "https://github.com/" + group[0].repo.name,
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "DeploymentEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "DeploymentStatusEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "DownloadEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "FollowEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "ForkEvent":
+									return {
+										type: event_type,
+										template: "Forked shamoons/website from emberjs/website",
+										full_name: group[0].payload.forkee.full_name,
+										full_name_url: group[0].payload.forkee.html_url,
+										repo: group[0].repo.name,
+										repo_url: "https://github.com/" + group[0].repo.name,
+										description: group[0].payload.forkee.description,
+										created_at: timeStampToString(group[0].created_at)
+									}
+								case "ForkApplyEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "GistEvent":
+									return {
+										type: event_type,
+										template: "Created a gist",
+										description: group[0].payload.gist.description, // can be empty (Ex: "")
+										gist_url: "https://gist.github.com/" + group[0].payload.gist.id,
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "GollumEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "IssueCommentEvent":
+									return {
+										type: event_type,
+										template: "Commented on an issue on linnovate/mean",
+										issue: group[0].payload.comment.body,
+										issue_url: group[0].payload.issue.html_url,
+										repo: group[0].repo.name,
+										repo_url: "https://github.com/" + group[0].repo.name,
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "IssuesEvent":
+									return {
+										type: event_type,
+										template: "Opened an issue on ppcoin/ppcoin",
+										body: group[0].payload.issue.body,
+										title: group[0].payload.issue.title,
+										repo: group[0].repo.name,
+										repo_url: "https://github.com/" + group[0].repo.name,
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "MemberEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "PublicEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "PullRequestEvent":
+									return {
+										type: event_type, //group[0].type.split(/(?=[A-Z])/).slice(0,-1).join(" ")
+										template: "Opened a pull request for emberjs/website",
+										event_type_url: group[0].payload.pull_request.html_url,
+										repo: group[0].repo.name,
+										repo_url: group[0].repo.url,
+										created_at: timeStampToString(group[0].created_at)
+									};
+								case "PullRequestReviewCommentEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "PushEvent":
+									return {
+										type: event_type,
+										template: "Pushed 1 commit(s) to shamoons/website",
+										count: group.length,
+										repo: group[0].repo.name,
+										repo_url: group[0].repo.url,
+										events: group,
+										created_at: timeStampToString(group[0].created_at)
+									};
+								case "ReleaseEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "StatusEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "TeamAddEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								case "WatchEvent":
+									return {
+										type: event_type,
+
+										created_at: timeStampToString(group[0].created_at)										
+									};
+								default: break;
+							}
+						}();
+
+						timelines.push(new Timeline(content));
 					});
 					
 					timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines), el: $('#timeline-container') });
@@ -239,3 +443,7 @@ $(function() {
 	var users_list_view = new UserListView({ collection: users, el: $('#user-container') });
 	var user_form = new UserFormView({collection: users, el: $('#user-form')});
 });
+
+// window.views = {};
+// views['PushEvent'] = "<h4>Pushed <%= count %> commit(s) to <a href=\"<%= repo_url %>\"><%= repo %></a></h4>\n<ul id=\"events-container\">\n<% _.each(events, function(event){ %>\n<li><%= event.payload.commits[0].message %></li>\n<% }) %>\n</ul>\n<div><a href=\"#\">more</a></div>\n<span class=\"date\"><%= created_at %></span>";
+

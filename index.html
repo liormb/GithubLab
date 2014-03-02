@@ -7,39 +7,50 @@
 	<script src="lib/underscore.js"></script>
 	<script src="lib/backbone.js"></script>
 	<script src="lib/d3.min.js"></script>
-	
+	<script src="lib/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="lib/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="stylesheets/styles.css">
 </head>
 <body>
-	<h1>GithubLab</h1>
+	<div class="container col-md-10 col-md-offset-2">
+		<h1>GithubLab</h1>
 
-	<section id="form-container">
-		<form id="user-form">
-			<input id="user-name" type="text" name="username" placeholder="Username">
-			<button id="user-submit" type="submit">Search Github</button>
-		</form>
-	</section>
-	<div id="user-container"></div>
-	<ul id="timeline-container"></ul>
+		<section id="form-container">
+			<form id="user-form">
+				<input id="user-name" type="text" name="username" placeholder="Username">
+				<button id="user-submit" type="submit">Search Github</button>
+			</form>
+		</section>
+
+		<div id="user-container"></div>
+		<div id="timeline-line"></div>
+		<ul id="timeline-container"></ul>
+	</div>
 
 	<!-- User Information -->
 	<script id="user-information" type="text/template">
-		<img src="<%= avatar_url %>" title="<%= name %>" alt="<%= name %>">
+		<img class="user-image" src="<%= avatar_url %>" title="<%= name %>" alt="<%= name %>">
 	</script>
 
-	<!-- Commit Group li -->
-	<script id="timeline-item" type="text/template">
-		<h3>Pushed <%= events_count %> commit(s) to <a href="<%= repo_url %>"><%= repo %></a></h3>
-	  <ul id="events-container">
-	  	<% _.each(events, function(event){ %>
-	  		<li><%= event.payload.commits[0].message %></li>
-	  	<% }) %>
-	  </ul>
-		<div><a href="#">more</a></div>
-		<span class="date"><%= date %></span>
+	<!-- Events -->
+	<script id="timeline-item" class="col-xs-6 col-sm-4" type="text/template">
+		<% if (type == 'PushEvent'){ %>
+			<h4>Pushed <%= count %> commit(s) to <a href="<%= repo_url %>"><%= repo %></a></h4>
+	  	<ul id="events-container">
+	  		<% _.each(events, function(event){ %>
+	  			<li><%= event.payload.commits[0].message %></li>
+	  		<% }) %>
+	  	</ul>
+			<div><a href="#">more</a></div>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'CreateEvent'){ %>
+			<h4>Created: <a href="<%= repo_url %>"><%= repo %></a></h4>
+			<span class="date"><%= created_at %></span>
+		<% } %>
 	</script>
 
-	<!-- Commits li -->
+	<!-- Commit -->
 	<script id="event-item" type="text/template">
 		<%= payload.commits[0].message %>
 	</script>
@@ -47,3 +58,5 @@
 	<script src="javascripts/githublab.js"></script>
 </body>
 </html>
+
+		<!--  -->

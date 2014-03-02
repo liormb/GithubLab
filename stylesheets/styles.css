@@ -1,7 +1,33 @@
+
 html {
-	background: rgb(240,240,240);
+	background: rgb(255,255,255);
 }
-#timeline-item > li {
+#timeline-line {
+	position: absolute;
+	top: 195px;
+	bottom: 0;
+	left: -webkit-calc(40% - 2px);
+	width: 4px;
+	height: 100%;
+	background: orange;
+}
+ul {
+	list-style-type: none;
+}
+#timeline-container {
+	margin-top: 100px;
+	padding: 0;
+}
+#timeline-container > li {
+	float: left;
+	width: 455px;
+	margin-right: 20px;
 	margin-bottom: 20px;
-	background: red;
+	border: 1px solid rgb(200,200,200);
+}
+.user-image {
+	position: absolute;
+	top: 50px;
+	right: 300px;
+	height: 100px;
 }
