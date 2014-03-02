@@ -13,7 +13,7 @@
 	<link rel="stylesheet" href="stylesheets/styles.css">
 </head>
 <body>
-	<div class="container col-md-10 col-md-offset-2">
+	<div class="container col-md-10 col-md-offset-1">
 		<h1>GithubLab</h1>
 
 		<section id="form-container">
@@ -24,8 +24,9 @@
 		</section>
 
 		<div id="user-container"></div>
-		<div id="timeline-line"></div>
-		<ul id="timeline-container"></ul>
+		<ul id="timeline-container" class="container col-md-10 col-md-offset-1">
+			<div id="timeline-line"></div>
+		</ul>
 	</div>
 
 	<!-- User Information -->
@@ -49,7 +50,7 @@
 			<% } %>
 			<span class="date"><%= created_at %></span>
 		<% } else if (type == 'GollumEvent'){ %>
-			<h4>Updated <%= page_count %> page(s) for </h4><a href="<%= repo_url %>"><%= repo %></a>
+			<h4>Updated <%= page_count %> page(s) for <a href="<%= repo_url %>"><%= repo %></a></h4>
 			<h4><%= page_name %></h4>
 			<span class="date"><%= created_at %></span>
 		<% } else if (type == 'IssueCommentEvent'){ %>

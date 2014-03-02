@@ -141,9 +141,52 @@ var TimelineListView = Backbone.View.extend({
 	initialize: function(options) {
 		this.collection = options.collection;
 	},
+	childrenBottomPosition: function() {
+		var allLeftEl = this.$el.find('.left');
+		var allRightEl = this.$el.find('.right');
+
+		if (allLeftEl.length > 0) {
+			var lastLeftEl = $(allLeftEl[allLeftEl.length - 1]);
+			var leftColBottomPos = lastLeftEl.position().top + lastLeftEl.outerHeight();
+		} else {
+			var leftColBottomPos = 0;
+			var className = 'left';
+		}
+
+		if (allRightEl.length > 0) {
+			var lastRightEl = $(allRightEl[allRightEl.length - 1]);
+			var rightColBottomPos = lastRightEl.position().top + lastRightEl.outerHeight();
+		} else {
+			var rightColBottomPos = 0;
+			var className = 'right';
+		}
+
+		if (className == undefined)
+			var className = (leftColBottomPos < rightColBottomPos) ? 'left' : 'right';
+
+		var top = (leftColBottomPos <= rightColBottomPos) ? leftColBottomPos : rightColBottomPos;
+
+		return {top: top, left: leftColBottomPos, right: rightColBottomPos, className: className};
+	},
+	renderTimelineHeight: function() {
+		var pos = this.childrenBottomPosition();
+		this.$el.css({ height: Math.max(pos.left, pos.right) });
+	},
+	renderChildPosition: function(child) {
+		var marginBottom = 20;
+		var pos = this.childrenBottomPosition();
+		var properties = {};
+
+		properties[pos.className] = 0;
+		properties['top'] = (pos.left == 0 || pos.right == 0) ? 0 : pos.top + marginBottom;
+
+		child.css(properties);
+		child.attr({'class': pos.className});
+	},
 	renderTimeline: function(group) {
 		var timeline_view = new TimelineView({ model:group });
 		this.$el.append( timeline_view.render().el );
+		this.renderChildPosition($(timeline_view.$el));
 		return this;
 	},
 	render: function() {
@@ -151,6 +194,7 @@ var TimelineListView = Backbone.View.extend({
 		_.each(this.collection.models, function(group) {
 			self.renderTimeline(group);
 		});
+		this.renderTimelineHeight();
 	}
 });
 
