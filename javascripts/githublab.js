@@ -243,6 +243,7 @@ var TimelineListView = Backbone.View.extend({
 	el: $('#timeline-container'),
 	initialize: function(options) {
 		this.collection = options.collection;
+		this.render();
 	},
 	childrenBottomPosition: function() {
 		var leftElements = this.$el.find('.left');
@@ -316,7 +317,7 @@ var UserEvent = Backbone.Model.extend({});
 
 var UserEventCollection = Backbone.Collection.extend({
 	initialize: function(models, options) {
-		if (options) this.url = options.events_url;
+		this.url = options.events_url;
 	},
 	groupByDate: function(commits) {
 		var groupsArray = [[]];
@@ -339,36 +340,33 @@ var UserEventCollection = Backbone.Collection.extend({
 // ------------------------------------------------
 var User = Backbone.Model.extend({
 	initialize: function() {
-		var self = this;
 		this.url = "https://api.github.com/users/" + this.get('username');
-		this.fetch({
-			success: function(data) {
-				var responseArray = [];
-				user_events = new UserEventCollection([], { events_url: data.get('events_url').replace(/{(.*)}/, "") }); // public
-				for (var i=1; i <= 2; i++) {
-					var response = user_events.fetch({ add: true, data: {page: i} });	
-					responseArray.push(response);
-				}
-				$.when.apply($, responseArray).done(function() { self.getUserEvents(responseArray); });
-			}
-		});
 	},
-	getUserEvents: function(responseArray) {
-		tempArray = [];
-		_.each(responseArray, function(response) {
-			tempArray = tempArray.concat(response.responseJSON);
-		});
+	getUserEvents: function() {
+		var user_events = new UserEventCollection([], { events_url: this.get('events_url').replace(/{(.*)}/, "") });
 
-		user_groups = groupEvents(tempArray);
-		user_groups.pop();
+		var responses = [];
+		for (var i=1; i <= 2; i++) {
+			var response = user_events.fetch({ add: true, data: {page: i} });	
+			responses.push(response);
+		}
 
-		timelines = [];
-		_.each(user_groups, function(group, index) {
-			timelines.push(new Timeline(content(group)));
+		$.when.apply($, responses).done(function() {
+			tempArray = [];
+			_.each(responses, function(response) {
+				tempArray = tempArray.concat(response.responseJSON);
+			});
+
+			user_groups = groupEvents(tempArray);
+			user_groups.pop();
+
+			timelines = [];
+			_.each(user_groups, function(group, index) {
+				timelines.push(new Timeline(content(group)));
+			});
+			
+			timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines) });
 		});
-		
-		timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines) });
-		timeline_list_view.render();
 	}
 });
 
@@ -377,35 +375,31 @@ var UserCollection = Backbone.Collection.extend({
 });
 
 var UserView = Backbone.View.extend({
-	initialize: function() {
-		this.listenTo(this.model, 'all', this.render);
-	},
 	tagName: 'div',
 	template: _.template( $('#user-information').html() ),
 	render: function() {
-		this.$el.empty()
-		if (this.model.get('name')) 
-			this.$el.html( this.template(this.model.attributes) );
+		this.$el.empty();
+		this.$el.html( this.template(this.model.attributes) );
 		return this;
 	}
 });
 
 var UserListView = Backbone.View.extend({
 	el: $('#user-container'),
-	initialize: function() {
-		this.listenTo(this.collection, 'add', this.render);
+	initialize: function(options) {
+		this.model = new User({ username: options.username });
+		this.model.on('sync', this.render, this);
+		this.model.fetch();
 	},
-	renderUser: function(user_instance) {
-		var user_view = new UserView({ model:user_instance });
-		this.$el.prepend( user_view.render().el );
+	renderUser: function(user) {
+		var user_view = new UserView({ model: user });
+		this.$el.append( user_view.render().el );
 		return this;
 	},
 	render: function() {
+		this.model.getUserEvents();
 		this.$el.empty();
-		var self = this;
-		_.each(this.collection.models, function(user) {	
-			self.renderUser(user);
-		});
+		this.renderUser(this.model);
 	}
 });
 
@@ -419,9 +413,8 @@ var UserFormView = Backbone.View.extend({
   },
   submitCallBack: function(event) {
   	event.preventDefault();
-    var username = this.getFormData();
-    user = new User({username: username});
-    this.collection.add( user );
+  	var username = this.getFormData();
+  	var users_list_view = new UserListView({ username: username });
     this.clearForm();
   },
   getFormData: function() {
@@ -437,9 +430,7 @@ var user_events, user_groups;
 var event_list_view, tempArray;
 
 $(function() {
-	users = new UserCollection;
-	var users_list_view = new UserListView({ collection: users });
-	var user_form = new UserFormView({ collection: users });
+	new UserFormView;
 });
 
 // window.views = {};
