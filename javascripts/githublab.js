@@ -11,20 +11,6 @@ function timeStampToString(timestamp) {
 	)
 }
 
-function groupEvents(events) {
-	var groups = [[]];
-	var index = 0;
-	for (var i=1; i < events.length; i++) {
-		groups[index].push(events[i-1]);
-		if (events[i-1].type != events[i].type ||
-		    timeStampToString(events[i].created_at) != timeStampToString(events[i-1].created_at)) {
-			groups.push([]);
-			index++;
-		}
-	}
-	return groups;
-}
-
 var content = function(group) {
 	var event_type = (group != []) ? group[0].type : "";
 	switch (event_type) {
@@ -190,38 +176,6 @@ var content = function(group) {
 };
 
 // ------------------------------------------------
-// -------------------- Event ---------------------
-// ------------------------------------------------
-var Event = Backbone.Model.extend({});
-
-var EventCollection = Backbone.Collection.extend({
-	model: Event
-});
-
-var EventView = Backbone.View.extend({
-	tagName: 'li',
-	template: _.template( $('#event-item').html() ),
-	render: function() {
-		this.$el.html( this.template(this.model.attributes) );
-		return this;
-	}
-});
-
-var EventListView = Backbone.View.extend({
-	renderEvent: function(event) {
-		var event_view = new EventView({ model:event });
-		this.$el.prepend( event_view.render().el );
-		return this;
-	},
-	render: function() {
-		var self = this;
-		_.each(this.collection.models, function(event) {
-			self.renderEvent(event);
-		});
-	}
-});
-
-// ------------------------------------------------
 // ------------------- Timeline -------------------
 // ------------------------------------------------
 var Timeline = Backbone.Model.extend({});
@@ -286,6 +240,7 @@ var TimelineListView = Backbone.View.extend({
 	},
 	renderChildPosition: function(child) {
 		var pos = this.childrenBottomPosition();
+		var tooltip = (pos.class=='left') ? ' tooltip-right' : ' tooltip-left';
 		var marginBottom = 20;
 		var properties = {};
 
@@ -293,7 +248,8 @@ var TimelineListView = Backbone.View.extend({
 		properties['top'] = (pos.left == 0 || pos.right == 0) ? 0 : pos.top + marginBottom;
 
 		child.css(properties);
-		child.attr({'class': pos.class});
+		child.attr({'class': pos.class + tooltip });
+		child.append("<span class='square-" + pos.class + "'></span>");
 	},
 	renderTimeline: function(group) {
 		var timeline_view = new TimelineView({ model:group });
@@ -343,6 +299,7 @@ var User = Backbone.Model.extend({
 		this.url = "https://api.github.com/users/" + this.get('username');
 	},
 	getUserEvents: function() {
+		var self = this;
 		var user_events = new UserEventCollection([], { events_url: this.get('events_url').replace(/{(.*)}/, "") });
 
 		var responses = [];
@@ -352,21 +309,34 @@ var User = Backbone.Model.extend({
 		}
 
 		$.when.apply($, responses).done(function() {
-			tempArray = [];
+			var events = [];
 			_.each(responses, function(response) {
-				tempArray = tempArray.concat(response.responseJSON);
+				events = events.concat(response.responseJSON);
 			});
 
-			user_groups = groupEvents(tempArray);
-			user_groups.pop();
+			var groups = self.createGroupEvents(events);
 
 			timelines = [];
-			_.each(user_groups, function(group, index) {
+			_.each(groups, function(group, index) {
 				timelines.push(new Timeline(content(group)));
 			});
 			
 			timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines) });
 		});
+	},
+	createGroupEvents: function(events) {
+		var groups = [[]];
+		var index = 0;
+		for (var i=1; i < events.length; i++) {
+			groups[index].push(events[i-1]);
+			if (events[i-1].type != events[i].type ||
+			    timeStampToString(events[i].created_at) != timeStampToString(events[i-1].created_at)) {
+				groups.push([]);
+				index++;
+			}
+		}
+		groups.pop();
+		return groups;
 	}
 });
 
@@ -435,4 +405,37 @@ $(function() {
 
 // window.views = {};
 // views['PushEvent'] = "<h4>Pushed <%= count %> commit(s) to <a href=\"<%= repo_url %>\"><%= repo %></a></h4>\n<ul id=\"events-container\">\n<% _.each(events, function(event){ %>\n<li><%= event.payload.commits[0].message %></li>\n<% }) %>\n</ul>\n<div><a href=\"#\">more</a></div>\n<span class=\"date\"><%= created_at %></span>";
+
+// ------------------------------------------------
+// -------------------- Event ---------------------
+// ------------------------------------------------
+// var Event = Backbone.Model.extend({});
+
+// var EventCollection = Backbone.Collection.extend({
+// 	model: Event
+// });
+
+// var EventView = Backbone.View.extend({
+// 	tagName: 'li',
+// 	template: _.template( $('#event-item').html() ),
+// 	render: function() {
+// 		this.$el.html( this.template(this.model.attributes) );
+// 		return this;
+// 	}
+// });
+
+// var EventListView = Backbone.View.extend({
+// 	renderEvent: function(event) {
+// 		var event_view = new EventView({ model:event });
+// 		this.$el.prepend( event_view.render().el );
+// 		return this;
+// 	},
+// 	render: function() {
+// 		var self = this;
+// 		_.each(this.collection.models, function(event) {
+// 			self.renderEvent(event);
+// 		});
+// 	}
+// });
+
 
