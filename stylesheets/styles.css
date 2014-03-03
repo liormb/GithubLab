@@ -2,6 +2,13 @@
 html {
 	background: rgb(245,245,245);
 }
+.top-header-container {
+	position: fixed;
+	height: 140px;
+	border-bottom: 4px solid white;
+	background: rgba(94,172,215,.9);
+	z-index: 9999;
+}
 #timeline-line {
 	position: absolute;
 	top: 0;
@@ -50,6 +57,9 @@ ul {
 	right: 300px;
 	height: 100px;
 }
+.actor-image {
+	height: 60px;
+}
 
 span.square-left,
 span.square-right {
@@ -57,7 +67,7 @@ span.square-right {
 	top: 50%;
   width: 4px; 
   height: 12px;
-  margin-top: -7px;
+  margin-top: -6px;
   border-top: 4px solid rgb(245,245,245);
   border-bottom: 4px solid rgb(245,245,245);
   background: orange; 
@@ -67,6 +77,10 @@ span.square-left {
 }
 span.square-right {
 	left: -16px;
+}
+
+.create-event {
+	background: red;
 }
 
 /* tooltip/tooltip */

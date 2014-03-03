@@ -13,31 +13,52 @@
 	<link rel="stylesheet" href="stylesheets/styles.css">
 </head>
 <body>
-	<div class="container col-md-10 col-md-offset-1">
-		<h1>GithubLab</h1>
 
-		<section id="form-container">
-			<form id="user-form">
-				<input id="user-name" type="text" name="username" placeholder="Username">
-				<button id="user-submit" type="submit">Search Github</button>
-			</form>
-		</section>
+	<div class="top-header-container col-lg-12">
+		<header class="container col-lg-8 col-md-offset-2">
+			<a href="/"><div class="logo">GithubLab</div></a>
+			
+			<!-- <form id="user-form" role="form">
+				<div class="form-group">
+					<input id="user-name" type="text" name="username" placeholder="Username">
+					<button id="user-submit" class="btn btn-warning" type="submit">Search Github</button>
+				</div>
+			</form> -->
 
-		<div id="user-container"></div>
-		<ul id="timeline-container" class="container col-md-10 col-md-offset-1">
-			<div id="timeline-line"></div>
-		</ul>
+			<div id="input-container" class="row">
+			  <div class="col-lg-6">
+			    <div class="input-group">
+			      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username">
+			      <span class="input-group-btn">
+			        <button id="user-submit" class="btn btn-warning" type="button">Search</button>
+			      </span>
+			    </div>
+			  </div>
+			</div>
+
+			<div id="user-container"></div>
+		</header>
 	</div>
+
+	<div class="container col-md-10 col-md-offset-1">
+		<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
+	</div>
+
+	<!-- ============================================================== -->
 
 	<!-- User Information -->
 	<script id="user-information" type="text/template">
-		<img class="user-image" src="<%= avatar_url %>" title="<%= name || username %>" alt="<%= name || username %>">
+		<img class="user-image img-thumbnail" src="<%= avatar_url %>" title="<%= name || username %>" alt="<%= name || username %>">
 	</script>
 
 	<!-- Timeline Events -->
 	<script id="timeline-item" class="col-xs-6 col-sm-4" type="text/template">
 		<% if (type == 'CreateEvent'){ %>
 			<h1>Created: <a href="<%= repo_url %>"><%= repo %></a></h1>
+			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'FollowEvent'){ %>
+			<h1>Started following <a href="<%= target_url %>"><%= target_name || target_login %></h1>
+			<img class="actor-image" src="<%= target_avatar_url %>" title="<%= target_name || target_login %>" alt="<%= target_name || target_login %>">
 			<span class="date"><%= created_at %></span>
 		<% } else if (type == 'ForkEvent'){ %>
 			<h1>Forked <a href="<%= full_name_url %>"><%= full_name %></a> from <a href="<%= repo_url %>"><%= repo %></a></h1>
@@ -77,6 +98,10 @@
 	  	</ul>
 			<div><a href="#">more</a></div>
 			<span class="date"><%= created_at %></span>
+		<% } else if (type == 'WatchEvent'){ %>
+			<h1>Start watching <a href="<%= repo_url %>"><%= repo %></a></h1>
+			<img class="actor-image" src="<%= avatar_url %>" title="<%= name || login %>" alt="<%= name || login %>">
+			<span class="date"><%= created_at %></span>
 		<% } else { %>
 			<h1>EVENT NOT LISTED</h1>
 			<h3><%= type %></h3>
@@ -91,5 +116,3 @@
 	<script src="javascripts/githublab.js"></script>
 </body>
 </html>
-
-		<!--  -->

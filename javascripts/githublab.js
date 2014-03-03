@@ -49,7 +49,12 @@ var content = function(group) {
 		case "FollowEvent":
 			return {
 				type: event_type,
-
+				target_name: group[0].payload.target.name,
+				target_login: group[0].payload.target.login,
+				target_avatar_url: group[0].payload.target.avatar_url,
+				target_url: group[0].payload.target.html_url,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "ForkEvent":
@@ -168,7 +173,10 @@ var content = function(group) {
 		case "WatchEvent":
 			return {
 				type: event_type,
-
+				avatar_url: group[0].actor.avatar_url,
+				login: group[0].actor.login,
+				repo: group[0].repo.name,
+				repo_url: group[0].repo.url,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		default: break;
@@ -231,7 +239,7 @@ var TimelineListView = Backbone.View.extend({
 			top:topPos,
 			left:leftColBottomPos,
 			right:rightColBottomPos,
-			class:className
+			class:className // left or right
 		};
 	},
 	renderTimelineHeight: function() {
@@ -247,9 +255,9 @@ var TimelineListView = Backbone.View.extend({
 		properties[pos.class] = 0;
 		properties['top'] = (pos.left == 0 || pos.right == 0) ? 0 : pos.top + marginBottom;
 
-		child.css(properties);
-		child.attr({'class': pos.class + tooltip });
-		child.append("<span class='square-" + pos.class + "'></span>");
+		child.css(properties)
+			.attr({'class': pos.class + tooltip })
+			.append("<span class='square-" + pos.class + "'></span>");
 	},
 	renderTimeline: function(group) {
 		var timeline_view = new TimelineView({ model:group });
@@ -259,6 +267,7 @@ var TimelineListView = Backbone.View.extend({
 	},
 	render: function() {
 		var self = this;
+		this.$el.empty().prepend("<div id='timeline-line'></div>");
 		_.each(this.collection.models, function(group) {
 			self.renderTimeline(group);
 		});
@@ -303,7 +312,7 @@ var User = Backbone.Model.extend({
 		var user_events = new UserEventCollection([], { events_url: this.get('events_url').replace(/{(.*)}/, "") });
 
 		var responses = [];
-		for (var i=1; i <= 2; i++) {
+		for (var i=1; i <= 1; i++) {
 			var response = user_events.fetch({ add: true, data: {page: i} });	
 			responses.push(response);
 		}
@@ -314,7 +323,7 @@ var User = Backbone.Model.extend({
 				events = events.concat(response.responseJSON);
 			});
 
-			var groups = self.createGroupEvents(events);
+			groups = self.createGroupEvents(events);
 
 			timelines = [];
 			_.each(groups, function(group, index) {
@@ -376,31 +385,33 @@ var UserListView = Backbone.View.extend({
 // ------------------------------------------------
 // ---------------- User Input Form ---------------
 // ------------------------------------------------
-var UserFormView = Backbone.View.extend({
-	el: $('#user-form'),
+var UserInputView = Backbone.View.extend({
+	initialize: function() {
+		this.$el = $('#input-container');
+	},
   events: {
-    'submit': 'submitCallBack'
+    'click #user-submit': 'submitCallBack',
+    "keyup #user-name" : "keyPressEventHandler"
+  },
+  keyPressEventHandler: function(e) {
+  	if (e.keyCode == 13) this.$('#user-submit').click();
   },
   submitCallBack: function(event) {
   	event.preventDefault();
-  	var username = this.getFormData();
+  	var username = this.getUserInput();
   	var users_list_view = new UserListView({ username: username });
-    this.clearForm();
+    this.clearUserInput();
   },
-  getFormData: function() {
+  getUserInput: function() {
     return this.$('#user-name').val();
   },
-  clearForm: function() {
+  clearUserInput: function() {
     this.$('input').val('');
   }
 });
 
-var user, users, events, groups;
-var user_events, user_groups; 
-var event_list_view, tempArray;
-
 $(function() {
-	new UserFormView;
+	new UserInputView;
 });
 
 // window.views = {};
