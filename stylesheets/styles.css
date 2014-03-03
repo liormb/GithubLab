@@ -1,21 +1,38 @@
 
 html {
+	/*
+	background: rgb(245,245,245) url(../images/image2.jpg) 51% center no-repeat;
+	background-attachment: absolute;
+	*/
 	background: rgb(245,245,245);
 }
 .top-header-container {
 	position: fixed;
 	height: 140px;
-	border-bottom: 4px solid white;
-	background: rgba(94,172,215,.9);
-	z-index: 9999;
+	border-bottom: 4px solid orange;
+	background: rgb(245,245,245) url(../images/services.jpg) center center no-repeat;
+	-webkit-background-size: cover;
+	background-size: cover;
+	z-index: 999;
+}
+.logo {
+	position: absolute;
+	top: 80px;
+	left: -126px;
+	background: url(../images/lab.png) no-repeat;
+	width: 250px;
+	height: 250px;
+}
+#input-container > div {
+	top: 50px;
 }
 #timeline-line {
 	position: absolute;
-	top: 0;
-	bottom: 0;
+	top: -20px;
+	bottom: 0px;
 	left: -webkit-calc(50% - 2px);
 	width: 4px;
-	height: 100%;
+	height: 110%;
 	background: orange;
 }
 ul {
@@ -23,7 +40,7 @@ ul {
 }
 #timeline-container {
 	position: relative;
-	top: 140px;
+	top: 160px;
 	padding: 0;
 }
 #timeline-container > li {
@@ -32,6 +49,9 @@ ul {
 	padding: 0 20px 20px;
 	border: 1px solid rgb(200,200,200);
 	border-radius: 4px;
+	-webkit-box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
+	-moz-box-box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
+	box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
 }
 #timeline-container > li > ul {
 	padding-left: 0;
@@ -53,8 +73,8 @@ ul {
 }
 .user-image {
 	position: absolute;
-	top: 50px;
-	right: 300px;
+	top: 20px;
+	right: 0px;
 	height: 100px;
 }
 .actor-image {
@@ -80,7 +100,8 @@ span.square-right {
 }
 
 .create-event {
-	background: red;
+	background: rgb(216,255,232) !important;
+	left: 25%;
 }
 
 /* tooltip/tooltip */
@@ -121,7 +142,6 @@ span.square-right {
 .tooltip-left:before,
 .tooltip-right:before {
 	border-color: rgba(158,158,158,0);
-	/*border-right-color: rgb(200,200,200);*/
 	border-width: 9px;
 	margin-top: -9px;
 }

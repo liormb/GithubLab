@@ -1,6 +1,7 @@
 
-Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
-timeRegex = /\w{3} (\w{3}) (\d{2}) (\d{4}) (\d{2}):(\d{2}):[^(]+\(([A-Z]{3})\)/;
+var timeline = "<div id='timeline-line'></div>";
+var Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
+var timeRegex = /\w{3} (\w{3}) (\d{2}) (\d{4}) (\d{2}):(\d{2}):[^(]+\(([A-Z]{3})\)/;
 
 function timeStampToString(timestamp) {
 	var parseISODate = Date.parse(timestamp.slice(0, timestamp.length - 1));
@@ -236,38 +237,43 @@ var TimelineListView = Backbone.View.extend({
 		}
 
 		return {
-			top:topPos,
-			left:leftColBottomPos,
-			right:rightColBottomPos,
-			class:className // left or right
+			top:topPos,              // most lower cordinate
+			left:leftColBottomPos,   // lower left cordinate
+			right:rightColBottomPos, // lower right cordinate
+			class:className          // left or right
 		};
 	},
 	renderTimelineHeight: function() {
 		var pos = this.childrenBottomPosition();
 		this.$el.css({ height: Math.max(pos.left, pos.right) });
 	},
-	renderChildPosition: function(child) {
+	renderChildPosition: function(child, specialPos) {
 		var pos = this.childrenBottomPosition();
 		var tooltip = (pos.class=='left') ? ' tooltip-right' : ' tooltip-left';
 		var marginBottom = 20;
 		var properties = {};
 
-		properties[pos.class] = 0;
-		properties['top'] = (pos.left == 0 || pos.right == 0) ? 0 : pos.top + marginBottom;
-
-		child.css(properties)
-			.attr({'class': pos.class + tooltip })
-			.append("<span class='square-" + pos.class + "'></span>");
+		if (specialPos) {
+			properties['top'] = Math.max(pos.left, pos.right) + marginBottom;
+			child.addClass('create-event left right');
+		} else {
+			properties[pos.class] = 0;
+			properties['top'] = (pos.left == 0 || pos.right == 0) ? 0 : pos.top + marginBottom;
+			child.addClass(pos.class + tooltip)
+				.append("<span class='square-" + pos.class + "'></span>");
+		}
+		child.css(properties);
 	},
 	renderTimeline: function(group) {
 		var timeline_view = new TimelineView({ model:group });
+		var specialPos = (timeline_view.model.get('type') == 'CreateEvent') ? true : false;
 		this.$el.append( timeline_view.render().el );
-		this.renderChildPosition($(timeline_view.$el));
+		this.renderChildPosition($(timeline_view.$el), specialPos);
 		return this;
 	},
 	render: function() {
 		var self = this;
-		this.$el.empty().prepend("<div id='timeline-line'></div>");
+		this.$el.empty().prepend(timeline);
 		_.each(this.collection.models, function(group) {
 			self.renderTimeline(group);
 		});
@@ -312,7 +318,7 @@ var User = Backbone.Model.extend({
 		var user_events = new UserEventCollection([], { events_url: this.get('events_url').replace(/{(.*)}/, "") });
 
 		var responses = [];
-		for (var i=1; i <= 1; i++) {
+		for (var i=1; i <= pages; i++) {
 			var response = user_events.fetch({ add: true, data: {page: i} });	
 			responses.push(response);
 		}
@@ -409,6 +415,8 @@ var UserInputView = Backbone.View.extend({
     this.$('input').val('');
   }
 });
+
+var pages = 2;
 
 $(function() {
 	new UserInputView;
