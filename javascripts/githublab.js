@@ -174,7 +174,10 @@ var content = function(group) {
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
-		default: break;
+		default: 
+			return {
+				type: "DefaultEvent",
+			};
 	}
 };
 
@@ -189,12 +192,27 @@ var TimelineCollection = Backbone.Collection.extend({
 
 var TimelineView = Backbone.View.extend({
 	tagName: 'li',
-	template: _.template( $('#timeline-item').html() ),
+	template: function() {
+		return _.template( $("#" + this.templateName).html() );
+	},
 	render: function() {
-		this.$el.html( this.template(this.model.attributes) );
+		this.$el.html( this.template()(this.model.attributes) );
 		return this;
 	}
 });
+
+var CreateEventView  = TimelineView.extend({ templateName: 'create-event' });
+var PushEventView    = TimelineView.extend({ templateName: 'push-event' });
+var FollowEventView  = TimelineView.extend({ templateName: 'follow-event' });
+var ForkEventView    = TimelineView.extend({ templateName: 'fork-event' });
+var GistEventView    = TimelineView.extend({ templateName: 'gist-event' });
+var GollumEventView  = TimelineView.extend({ templateName: 'gollum-event' });
+var IssueCommentEventView = TimelineView.extend({ templateName: 'issue-comment-event' });
+var IssuesEventView  = TimelineView.extend({ templateName: 'issues-event' });
+var MemberEventView  = TimelineView.extend({ templateName: 'member-event' });
+var PullRequestEventView  = TimelineView.extend({ templateName: 'pull-request-event' });
+var WatchEventView   = TimelineView.extend({ templateName: 'watch-event' });
+var DefaultEventView = TimelineView.extend({ templateName: 'default-event' });
 
 var TimelineListView = Backbone.View.extend({
 	el: $('#timeline-container'),
@@ -291,7 +309,23 @@ var TimelineListView = Backbone.View.extend({
 		child.css(properties);
 	},
 	renderTimeline: function(group) {
-		timeline_view = new TimelineView({ model:group });
+		var viewClasses = {
+      "CreateEvent" : CreateEventView,
+      "PushEvent"   : PushEventView,
+      "FollowEvent" : FollowEventView,
+      "ForkEvent"   : ForkEventView,
+      "GistEvent"   : GistEventView,
+      "GollumEvent" : GollumEventView,
+      "IssueCommentEvent": IssueCommentEventView,
+      "IssuesEvent" : IssuesEventView,
+      "MemberEvent" : MemberEventView,
+      "PullRequestEvent" : PullRequestEventView,
+      "WatchEvent"  : WatchEventView,
+      "DefaultEvent": DefaultEventView
+		};
+		var timeline_view_class = viewClasses[group.get("type")];
+		var timeline_view = new timeline_view_class({ model: group });
+
 		var timelineEl = timeline_view.render().el;
 		var specialPos = (timeline_view.model.get('type') == 'CreateEvent') ? true : false;
 
@@ -373,7 +407,12 @@ var UserEventCollection = Backbone.Collection.extend({
 // ------------------------------------------------
 var User = Backbone.Model.extend({
 	initialize: function() {
+		this.bind("error", this.errorResponce);
 		this.url = "https://api.github.com/users/" + this.get('username');
+	},
+	errorResponce: function(user, xhr) {
+		console.log(xhr.status + ": " + xhr.responseText);
+		console.dir(xhr);
 	},
 	getUserEvents: function() {
 		var self = this;
