@@ -257,6 +257,9 @@ var TimelineListView = Backbone.View.extend({
   		.removeClass('left').removeClass('right')
   		.removeClass('tooltip-left').removeClass('tooltip-right');
 
+  	children.find('span.square-left').remove();
+  	children.find('span.square-right').remove();
+
   	$($(e.currentTarget.parentElement).find('li')).toggleClass('hidden');
   	$($(e.currentTarget.parentElement).find('li:lt('+commitsPerEvent+')')).removeClass('hidden');
 
