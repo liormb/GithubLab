@@ -1,6 +1,7 @@
 
 var timeline = "<div id='timeline-line'></div>";
 var timelineTopPos = 20;
+var marginBottom = 20; // the margin between each timeline item
 var Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
 var timeRegex = /\w{3} (\w{3}) (\d{2}) (\d{4}) (\d{2}):(\d{2}):[^(]+\(([A-Z]{3})\)/;
 
@@ -257,7 +258,6 @@ var TimelineListView = Backbone.View.extend({
 	renderChildPosition: function(child, specialPos) {
 		var pos = this.childrenBottomPosition();
 		var tooltip = (pos.class=='left') ? ' tooltip-right' : ' tooltip-left';
-		var marginBottom = 40;
 		var properties = {};
 
 		if (specialPos) {
@@ -276,6 +276,12 @@ var TimelineListView = Backbone.View.extend({
 		var specialPos = (timeline_view.model.get('type') == 'CreateEvent') ? true : false;
 		this.$el.append( timeline_view.render().el );
 		this.renderChildPosition($(timeline_view.$el), specialPos);
+
+		if (timeline_view.model.get('type') == 'PushEvent') {
+			event_collection = new EventCollection(timeline_view.model.get('events'));
+			event_list_view = new EventListView({ collection: event_collection });
+		} 
+
 		return this;
 	},
 	render: function() {
@@ -285,6 +291,45 @@ var TimelineListView = Backbone.View.extend({
 			self.renderTimeline(group);
 		});
 		this.renderTimelineHeight();
+	}
+});
+
+// ------------------------------------------------
+// -------------------- Event ---------------------
+// ------------------------------------------------
+var Event = Backbone.Model.extend({});
+
+var EventCollection = Backbone.Collection.extend({
+	model: Event
+});
+
+var EventView = Backbone.View.extend({
+	tagName: 'li',
+	template: _.template( $('#event-item').html() ),
+	render: function() {
+		this.$el.html( this.template(this.model.attributes) );
+		return this;
+	}
+});
+
+var EventListView = Backbone.View.extend({
+	el: $('#events-container'),
+	initialize: function(options) {
+		this.collection = options.collection;
+		this.render();
+		//console.dir(this.collection);
+	},
+	renderEvent: function(event) {
+		var event_view = new EventView({ model:event });
+		this.$el.append( event_view.render().el );
+		return this;
+	},
+	render: function() {
+		var self = this;
+		this.$el.empty();
+		_.each(this.collection.models, function(event) {
+			self.renderEvent(event);
+		});
 	}
 });
 
@@ -331,7 +376,7 @@ var User = Backbone.Model.extend({
 		}
 
 		$.when.apply($, responses).done(function() {
-			var events = [];
+			events = [];
 			_.each(responses, function(response) {
 				events = events.concat(response.responseJSON);
 			});
@@ -351,8 +396,8 @@ var User = Backbone.Model.extend({
 		var index = 0;
 		for (var i=1; i < events.length; i++) {
 			groups[index].push(events[i-1]);
-			if (events[i-1].type != events[i].type ||
-			    timeStampToString(events[i].created_at) != timeStampToString(events[i-1].created_at)) {
+			if (!(events[i-1].type == 'PushEvent' && events[i].type == 'PushEvent' && 
+					timeStampToString(events[i].created_at) == timeStampToString(events[i-1].created_at))) {
 				groups.push([]);
 				index++;
 			}
@@ -431,37 +476,3 @@ $(function() {
 
 // window.views = {};
 // views['PushEvent'] = "<h4>Pushed <%= count %> commit(s) to <a href=\"<%= repo_url %>\"><%= repo %></a></h4>\n<ul id=\"events-container\">\n<% _.each(events, function(event){ %>\n<li><%= event.payload.commits[0].message %></li>\n<% }) %>\n</ul>\n<div><a href=\"#\">more</a></div>\n<span class=\"date\"><%= created_at %></span>";
-
-// ------------------------------------------------
-// -------------------- Event ---------------------
-// ------------------------------------------------
-// var Event = Backbone.Model.extend({});
-
-// var EventCollection = Backbone.Collection.extend({
-// 	model: Event
-// });
-
-// var EventView = Backbone.View.extend({
-// 	tagName: 'li',
-// 	template: _.template( $('#event-item').html() ),
-// 	render: function() {
-// 		this.$el.html( this.template(this.model.attributes) );
-// 		return this;
-// 	}
-// });
-
-// var EventListView = Backbone.View.extend({
-// 	renderEvent: function(event) {
-// 		var event_view = new EventView({ model:event });
-// 		this.$el.prepend( event_view.render().el );
-// 		return this;
-// 	},
-// 	render: function() {
-// 		var self = this;
-// 		_.each(this.collection.models, function(event) {
-// 			self.renderEvent(event);
-// 		});
-// 	}
-// });
-
-
