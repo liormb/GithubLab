@@ -1,5 +1,5 @@
 
-var timeline = "<div id='timeline-line'></div>";
+var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
 var pages = 2;           // number of pages returning from Github API per user
 var timelineTopPos = 20; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
@@ -7,15 +7,17 @@ var commitsPerEvent = 4; // default number of commits shown in each event
 var Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
 var timeRegex = /\w{3} (\w{3}) (\d{2}) (\d{4}) (\d{2}):(\d{2}):[^(]+\(([A-Z]{3})\)/;
 
+/* taking a timestamp and returning a readable date: Ex. "March 03, 2014" */
 function timeStampToString(timestamp) {
 	var parseISODate = Date.parse(timestamp.slice(0, timestamp.length - 1));
 	return String(new Date(parseISODate)).replace(timeRegex,
 		function($0, $1, $2, $3) {
-      return Months[$1] + " " + $2 + ", " + $3 // hh:mm EST => "+$4%12+":"+$5+(+$4>12?"PM":"AM")+" "+$6
+      return Months[$1] + " " + $2 + ", " + $3;
     }
 	)
 }
 
+/* returning an timeline template for building the timeline model */
 var content = function(group) {
 	var event_type = (group != []) ? group[0].type : "";
 	switch (event_type) {
@@ -173,44 +175,44 @@ var content = function(group) {
 };
 
 // ------------------------------------------------
-// -------------------- Event ---------------------
+// ------------------- Commits --------------------
 // ------------------------------------------------
 
-/* github event model */
-var Event = Backbone.Model.extend({});
+/* github commit model */
+var Commit = Backbone.Model.extend({});
 
-/* list of all user events */
-var EventCollection = Backbone.Collection.extend({
-	model: Event
+/* list of all user's commits on one day */
+var CommitCollection = Backbone.Collection.extend({
+	model: Commit
 });
 
-/* returning an event template */
-var EventView = Backbone.View.extend({
+/* returning a commit template */
+var CommitView = Backbone.View.extend({
 	tagName: 'li',
-	template: _.template( $('#event-item').html() ),
+	template: _.template( $('#commit-item').html() ),
 	render: function() {
 		this.$el.html( this.template(this.model.attributes) );
 		return this;
 	}
 });
 
-/* handling  */
-var EventListView = Backbone.View.extend({
+/* rendering the ul#commits-container in the PushEvent timeline item */
+var CommitListView = Backbone.View.extend({
 	initialize: function(options) {
-		this.el = $('#events-container');
+		this.el = $('#commits-container');
 		this.collection = options.collection;
 		this.render();
 	},
-	renderEvent: function(event) {
-		var event_view = new EventView({ model:event });
-		this.$el.append( event_view.render().el );
+	renderCommit: function(commit) {
+		var commit_view = new CommitView({ model:commit });
+		this.$el.append( commit_view.render().el );
 		return this;
 	},
 	render: function() {
 		var self = this;
 		this.$el.empty();
-		_.each(this.collection.models, function(event) {
-			self.renderEvent(event);
+		_.each(this.collection.models, function(commit) {
+			self.renderCommit(commit);
 		});
 	}
 });
@@ -269,16 +271,16 @@ var TimelineListView = Backbone.View.extend({
 		var rightElements = this.$el.find('.right');
 
 		if (leftElements.length > 0) {
-			var lastLeftEl = $(leftElements[leftElements.length - 1]);
-			var leftColBottomPos = lastLeftEl.position().top + lastLeftEl.outerHeight();
+			var $lastLeftEl = $(leftElements[leftElements.length - 1]);
+			var leftColBottomPos = $lastLeftEl.position().top + $lastLeftEl.outerHeight();
 		} else {
 			var leftColBottomPos = timelineTopPos;
 			var className = 'left';
 		}
 
 		if (rightElements.length > 0) {
-			var lastRightEl = $(rightElements[rightElements.length - 1]);
-			var rightColBottomPos = lastRightEl.position().top + lastRightEl.outerHeight();
+			var $lastRightEl = $(rightElements[rightElements.length - 1]);
+			var rightColBottomPos = $lastRightEl.position().top + $lastRightEl.outerHeight();
 		} else {
 			var rightColBottomPos = timelineTopPos;
 			var className = 'right';
@@ -312,7 +314,7 @@ var TimelineListView = Backbone.View.extend({
 
 		var self = this;
   	var children = $(e.delegateTarget).find('>li');
-  	this.$el.empty().prepend(timeline); /* appending the timeline itself */
+  	this.$el.empty().prepend($timeline); /* appending the timeline itself */
 
   	/* clearing and removing old classes and timeline squares */
   	children.css({top:'', left:'', right:''})
@@ -323,8 +325,8 @@ var TimelineListView = Backbone.View.extend({
   	children.find('span.square-right').remove();
 
   	/* toggling item's hidden class and making sure that at least few of them visiable */
-  	$($(e.currentTarget.parentElement).find('li')).toggleClass('hidden');
-  	$($(e.currentTarget.parentElement).find('li:lt('+commitsPerEvent+')')).removeClass('hidden');
+  	$( $(e.currentTarget.parentElement).find('li') ).toggleClass('hidden');
+  	$( $(e.currentTarget.parentElement).find('li:lt('+commitsPerEvent+')') ).removeClass('hidden');
 
   	_.each(children, function(child) {
   		var specialPos = false;
@@ -337,7 +339,7 @@ var TimelineListView = Backbone.View.extend({
   	});
   	this.renderTimelineHeight();	
   },
-	renderChildPosition: function(child, specialPos) {
+	renderChildPosition: function($child, specialPos) {
 		/* setting every timeline item position */
 		var pos = this.childrenBottomPosition();
 		var tooltip = (pos.class=='left') ? ' tooltip-right' : ' tooltip-left';
@@ -345,14 +347,14 @@ var TimelineListView = Backbone.View.extend({
 
 		if (specialPos) {
 			properties['top'] = Math.max(pos.left, pos.right) + marginBottom;
-			child.addClass('create-event left right');
+			$child.addClass('create-event left right');
 		} else {
 			properties[pos.class] = 0;
 			properties['top'] = (pos.left == 0 || pos.right == 0) ? 0 : pos.top + marginBottom;
-			child.addClass(pos.class + tooltip)
+			$child.addClass(pos.class + tooltip)
 				.append("<span class='square-" + pos.class + "'></span>");
 		}
-		child.css(properties);
+		$child.css(properties);
 	},
 	renderTimeline: function(group) {
 		/* setting which template to use for each event */
@@ -377,8 +379,8 @@ var TimelineListView = Backbone.View.extend({
 		var specialPos = (timeline_view.model.get('type') == 'CreateEvent') ? true : false;
 
 		if (timeline_view.model.get('type') == 'PushEvent') {
-			event_collection = new EventCollection( timeline_view.model.get('events') );
-			event_list_view = new EventListView({ collection: event_collection });
+			event_collection = new CommitCollection( timeline_view.model.get('events') );
+			event_list_view = new CommitListView({ collection: event_collection });
 			_.each(event_list_view.$el.find('li'), function(li, index) {
 				if (index >= 4) $(li).toggleClass('hidden');
 				timeline_view.$el.find('ul').append(li);
@@ -391,7 +393,7 @@ var TimelineListView = Backbone.View.extend({
 	},
 	render: function() {
 		var self = this;
-		this.$el.empty().prepend(timeline);
+		this.$el.empty().prepend($timeline);
 		_.each(this.collection.models, function(group) {
 			self.renderTimeline(group);
 		});

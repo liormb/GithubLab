@@ -61,7 +61,7 @@ ul {
 #timeline-container > li > ul {
 	padding-left: 0;
 }
-#events-container li {
+#commits-container li {
 	margin-bottom: 12px;
 }
 #timeline-container li h1 {
@@ -79,7 +79,7 @@ ul {
 #timeline-container li h3:nth-child(1) {
 	min-width: 60px;
 }
-#events-container li h3 span {
+#commits-container li h3 span {
 	color: orange;
 }
 #timeline-container div.more  {
