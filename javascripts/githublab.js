@@ -1,5 +1,6 @@
 
 var timeline = "<div id='timeline-line'></div>";
+var pages = 2;           // number of pages returning from Github API per user
 var timelineTopPos = 20; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
 var commitsPerEvent = 4; // default number of commits shown in each event
@@ -21,7 +22,6 @@ var content = function(group) {
 		case "CommitCommentEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "CreateEvent":
@@ -34,19 +34,16 @@ var content = function(group) {
 		case "DeploymentEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "DeploymentStatusEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "DownloadEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "FollowEvent":
@@ -73,7 +70,6 @@ var content = function(group) {
 		case "ForkApplyEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "GistEvent":
@@ -121,7 +117,6 @@ var content = function(group) {
 		case "PublicEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "PullRequestEvent":
@@ -135,7 +130,6 @@ var content = function(group) {
 		case "PullRequestReviewCommentEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "PushEvent":
@@ -150,19 +144,16 @@ var content = function(group) {
 		case "ReleaseEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "StatusEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "TeamAddEvent":
 			return {
 				type: event_type,
-
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "WatchEvent":
@@ -182,14 +173,61 @@ var content = function(group) {
 };
 
 // ------------------------------------------------
+// -------------------- Event ---------------------
+// ------------------------------------------------
+
+/* github event model */
+var Event = Backbone.Model.extend({});
+
+/* list of all user events */
+var EventCollection = Backbone.Collection.extend({
+	model: Event
+});
+
+/* returning an event template */
+var EventView = Backbone.View.extend({
+	tagName: 'li',
+	template: _.template( $('#event-item').html() ),
+	render: function() {
+		this.$el.html( this.template(this.model.attributes) );
+		return this;
+	}
+});
+
+/* handling  */
+var EventListView = Backbone.View.extend({
+	initialize: function(options) {
+		this.el = $('#events-container');
+		this.collection = options.collection;
+		this.render();
+	},
+	renderEvent: function(event) {
+		var event_view = new EventView({ model:event });
+		this.$el.append( event_view.render().el );
+		return this;
+	},
+	render: function() {
+		var self = this;
+		this.$el.empty();
+		_.each(this.collection.models, function(event) {
+			self.renderEvent(event);
+		});
+	}
+});
+
+// ------------------------------------------------
 // ------------------- Timeline -------------------
 // ------------------------------------------------
+
+/* a timeline model: containing a group of events */
 var Timeline = Backbone.Model.extend({});
 
+/* set of timeline list */
 var TimelineCollection = Backbone.Collection.extend({
 	model: Timeline
 });
 
+/* setting the specific timeline template */
 var TimelineView = Backbone.View.extend({
 	tagName: 'li',
 	template: function() {
@@ -201,29 +239,32 @@ var TimelineView = Backbone.View.extend({
 	}
 });
 
-var CreateEventView  = TimelineView.extend({ templateName: 'create-event' });
-var PushEventView    = TimelineView.extend({ templateName: 'push-event' });
-var FollowEventView  = TimelineView.extend({ templateName: 'follow-event' });
-var ForkEventView    = TimelineView.extend({ templateName: 'fork-event' });
-var GistEventView    = TimelineView.extend({ templateName: 'gist-event' });
-var GollumEventView  = TimelineView.extend({ templateName: 'gollum-event' });
-var IssueCommentEventView = TimelineView.extend({ templateName: 'issue-comment-event' });
-var IssuesEventView  = TimelineView.extend({ templateName: 'issues-event' });
-var MemberEventView  = TimelineView.extend({ templateName: 'member-event' });
-var PullRequestEventView  = TimelineView.extend({ templateName: 'pull-request-event' });
-var WatchEventView   = TimelineView.extend({ templateName: 'watch-event' });
-var DefaultEventView = TimelineView.extend({ templateName: 'default-event' });
+/* assigning the right template to the right event */
+var CreateEventView= TimelineView.extend({ templateName: 'create-event' }),
+	PushEventView    = TimelineView.extend({ templateName: 'push-event' }),
+ 	FollowEventView  = TimelineView.extend({ templateName: 'follow-event' }),
+ 	ForkEventView    = TimelineView.extend({ templateName: 'fork-event' }),
+ 	GistEventView    = TimelineView.extend({ templateName: 'gist-event' }),
+ 	GollumEventView  = TimelineView.extend({ templateName: 'gollum-event' }),
+ 	IssueCommentEventView = TimelineView.extend({ templateName: 'issue-comment-event' }),
+ 	IssuesEventView  = TimelineView.extend({ templateName: 'issues-event' }),
+ 	MemberEventView  = TimelineView.extend({ templateName: 'member-event' }),
+ 	PullRequestEventView  = TimelineView.extend({ templateName: 'pull-request-event' }),
+ 	WatchEventView   = TimelineView.extend({ templateName: 'watch-event' }),
+ 	DefaultEventView = TimelineView.extend({ templateName: 'default-event' });
 
+/* rendering the view with all event on a single timeline */
 var TimelineListView = Backbone.View.extend({
 	el: $('#timeline-container'),
 	initialize: function(options) {
 		this.collection = options.collection;
-		this.render();
+		this.render(); /* auto rendering on every call */
 	},
 	events: {
     'click #more-submit': 'refreshTimeline',
   },
 	childrenBottomPosition: function() {
+		/* retriving positions of children's items */
 		var leftElements = this.$el.find('.left');
 		var rightElements = this.$el.find('.right');
 
@@ -259,18 +300,21 @@ var TimelineListView = Backbone.View.extend({
 		};
 	},
 	renderTimelineHeight: function() {
+		/* setting the timeline height according to its content */
 		var pos = this.childrenBottomPosition();
 		this.$el.css({ height: Math.max(pos.left, pos.right) });
 	},
 	refreshTimeline: function(e) {
+		/* refreshing the timeline by clearing and rebuilding it */
 		$(e.target).text(function(i, text){
       return text === "more" ? "less" : "more";
     });
 
 		var self = this;
   	var children = $(e.delegateTarget).find('>li');
-  	this.$el.empty().prepend(timeline);
+  	this.$el.empty().prepend(timeline); /* appending the timeline itself */
 
+  	/* clearing and removing old classes and timeline squares */
   	children.css({top:'', left:'', right:''})
   		.removeClass('left').removeClass('right')
   		.removeClass('tooltip-left').removeClass('tooltip-right');
@@ -278,12 +322,13 @@ var TimelineListView = Backbone.View.extend({
   	children.find('span.square-left').remove();
   	children.find('span.square-right').remove();
 
+  	/* toggling item's hidden class and making sure that at least few of them visiable */
   	$($(e.currentTarget.parentElement).find('li')).toggleClass('hidden');
   	$($(e.currentTarget.parentElement).find('li:lt('+commitsPerEvent+')')).removeClass('hidden');
 
   	_.each(children, function(child) {
   		var specialPos = false;
-  		if ($(child).hasClass('create-event')) {
+  		if ($(child).hasClass('create-event')) { /* handling special events */
   			specialPos = true;
   			$(child).removeClass('create-event');
   		}
@@ -293,6 +338,7 @@ var TimelineListView = Backbone.View.extend({
   	this.renderTimelineHeight();	
   },
 	renderChildPosition: function(child, specialPos) {
+		/* setting every timeline item position */
 		var pos = this.childrenBottomPosition();
 		var tooltip = (pos.class=='left') ? ' tooltip-right' : ' tooltip-left';
 		var properties = {};
@@ -309,6 +355,7 @@ var TimelineListView = Backbone.View.extend({
 		child.css(properties);
 	},
 	renderTimeline: function(group) {
+		/* setting which template to use for each event */
 		var viewClasses = {
       "CreateEvent" : CreateEventView,
       "PushEvent"   : PushEventView,
@@ -323,21 +370,21 @@ var TimelineListView = Backbone.View.extend({
       "WatchEvent"  : WatchEventView,
       "DefaultEvent": DefaultEventView
 		};
-		var timeline_view_class = viewClasses[group.get("type")];
+		var timeline_view_class = viewClasses[ group.get("type") ];
 		var timeline_view = new timeline_view_class({ model: group });
 
 		var timelineEl = timeline_view.render().el;
 		var specialPos = (timeline_view.model.get('type') == 'CreateEvent') ? true : false;
 
 		if (timeline_view.model.get('type') == 'PushEvent') {
-			event_collection = new EventCollection(timeline_view.model.get('events'));
+			event_collection = new EventCollection( timeline_view.model.get('events') );
 			event_list_view = new EventListView({ collection: event_collection });
 			_.each(event_list_view.$el.find('li'), function(li, index) {
 				if (index >= 4) $(li).toggleClass('hidden');
 				timeline_view.$el.find('ul').append(li);
 			});
 		}
-
+		/* append a timeline event to main timeline! */
 		this.$el.append( timelineEl );
 		this.renderChildPosition($(timeline_view.$el), specialPos);
 		return this;
@@ -348,75 +395,44 @@ var TimelineListView = Backbone.View.extend({
 		_.each(this.collection.models, function(group) {
 			self.renderTimeline(group);
 		});
-		this.renderTimelineHeight();
+		this.renderTimelineHeight(); /* setting the timeline height */
 	}
 });
 
 // ------------------------------------------------
-// -------------------- Event ---------------------
+// ------------------ Responces -------------------
 // ------------------------------------------------
-var Event = Backbone.Model.extend({});
 
-var EventCollection = Backbone.Collection.extend({
-	model: Event
-});
+/* responce model */
+var Responce = Backbone.Model.extend({});
 
-var EventView = Backbone.View.extend({
-	tagName: 'li',
-	template: _.template( $('#event-item').html() ),
-	render: function() {
-		this.$el.html( this.template(this.model.attributes) );
-		return this;
-	}
-});
-
-var EventListView = Backbone.View.extend({
-	initialize: function(options) {
-		this.el = $('#events-container');
-		this.collection = options.collection;
-		this.render();
-	},
-	renderEvent: function(event) {
-		var event_view = new EventView({ model:event });
-		this.$el.append( event_view.render().el );
-		return this;
-	},
-	render: function() {
-		var self = this;
-		this.$el.empty();
-		_.each(this.collection.models, function(event) {
-			self.renderEvent(event);
-		});
-	}
-});
-
-// ------------------------------------------------
-// ----------------- User Events ------------------
-// ------------------------------------------------
-var UserEvent = Backbone.Model.extend({});
-
-var UserEventCollection = Backbone.Collection.extend({
+/* list of all responces from Github API */
+var ResponceCollection = Backbone.Collection.extend({
 	initialize: function(models, options) {
 		this.url = options.events_url;
 	},
-	model: UserEvent
+	model: Responce
 });
 
 // ------------------------------------------------
 // --------------------- User ---------------------
 // ------------------------------------------------
+
+/* user model */
 var User = Backbone.Model.extend({
 	initialize: function() {
-		this.bind("error", this.errorResponce);
 		this.url = "https://api.github.com/users/" + this.get('username');
+		this.bind("error", this.errorResponce); /* on error */
 	},
 	errorResponce: function(user, xhr) {
+		/* handle user or server errors */
 		console.log(xhr.status + ": " + xhr.responseText);
 		console.dir(xhr);
 	},
 	getUserEvents: function() {
+		/* fetching user github's events from Github API */ 
 		var self = this;
-		var user_events = new UserEventCollection([], { events_url: this.get('events_url').replace(/{(.*)}/, "") });
+		var user_events = new ResponceCollection([], { events_url: this.get('events_url').replace(/{(.*)}/, "") });
 
 		var responses = [];
 		for (var i=1; i <= pages; i++) {
@@ -424,23 +440,28 @@ var User = Backbone.Model.extend({
 			responses.push(response);
 		}
 
+		/* upon user event's success event orginize events in groups and */
+		/* pass it to the TimelineListView for presenting it on screen.  */
 		$.when.apply($, responses).done(function() {
+			/* pulling all events from responces */
 			var events = [];
 			_.each(responses, function(response) {
 				events = events.concat(response.responseJSON);
 			});
-
+			/* making groups */
 			var groups = self.createGroupEvents(events);
 
+			/* bulding a list of timeline models from groups  */
 			var timelines = [];
 			_.each(groups, function(group, index) {
 				timelines.push(new Timeline(content(group)));
 			});
-			
+			/***** passing the action (list) to TimelineListView *****/
 			timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines) });
 		});
 	},
 	createGroupEvents: function(events) {
+		/* groups are created upon different events or by pushing on the same day */
 		var groups = [[]];
 		var index = 0;
 		for (var i=1; i < events.length; i++) {
@@ -456,10 +477,12 @@ var User = Backbone.Model.extend({
 	}
 });
 
+/* users list */
 var UserCollection = Backbone.Collection.extend({
 	model: User
 });
 
+/* returning a user template */
 var UserView = Backbone.View.extend({
 	tagName: 'div',
 	template: _.template( $('#user-information').html() ),
@@ -470,11 +493,13 @@ var UserView = Backbone.View.extend({
 	}
 });
 
+/* showing all users on screen */
+/* this vertion currently contain one user per page */
 var UserListView = Backbone.View.extend({
 	el: $('#user-container'),
 	initialize: function(options) {
 		this.model = new User({ username: options.username });
-		this.model.on('sync', this.render, this);
+		this.model.on('sync', this.render, this); /* on successful fetching goto render */
 		this.model.fetch();
 	},
 	renderUser: function(user) {
@@ -483,6 +508,7 @@ var UserListView = Backbone.View.extend({
 		return this;
 	},
 	render: function() {
+		/* getting all user's events from model (and printing them) */
 		this.model.getUserEvents();
 		this.$el.empty();
 		this.renderUser(this.model);
@@ -501,11 +527,14 @@ var UserInputView = Backbone.View.extend({
     "keyup #user-name" : "keyPressEventHandler"
   },
   keyPressEventHandler: function(e) {
+  	// submitting also by [ENTER] keypress
   	if (e.keyCode == 13) this.$('#user-submit').click();
   },
   submitCallBack: function(event) {
   	event.preventDefault();
   	var username = this.getUserInput();
+
+  	/***** passing the action to UserListView *****/
   	var users_list_view = new UserListView({ username: username });
     this.clearUserInput();
   },
@@ -517,11 +546,7 @@ var UserInputView = Backbone.View.extend({
   }
 });
 
-var pages = 2;
-
+/* let's start playing... */
 $(function() {
 	new UserInputView;
 });
-
-// window.views = {};
-// views['PushEvent'] = "<h4>Pushed <%= count %> commit(s) to <a href=\"<%= repo_url %>\"><%= repo %></a></h4>\n<ul id=\"events-container\">\n<% _.each(events, function(event){ %>\n<li><%= event.payload.commits[0].message %></li>\n<% }) %>\n</ul>\n<div><a href=\"#\">more</a></div>\n<span class=\"date\"><%= created_at %></span>";

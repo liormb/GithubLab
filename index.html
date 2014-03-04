@@ -120,7 +120,7 @@
 		<h3><%= type %></h3>
   </script>
 
-	<!-- Single Event -->
+	<!-- Single Commit Event -->
 	<script id="event-item" type="text/template">
 		<a href="<%= 'https://github.com/' + repo.name + '/commit/' + payload.commits[0].sha %>">
 			<h3><span><%= payload.commits[0].sha.substring(0,7) %></span></h3>
@@ -128,7 +128,7 @@
 		</a>
 	</script>
 
-	<!-- Single Commit -->
+	<!-- Single Commit Message -->
 	<script id="event-item" type="text/template">
 		<%= payload.commits[0].message %>
 	</script>
