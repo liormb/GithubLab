@@ -1,7 +1,8 @@
 
 var timeline = "<div id='timeline-line'></div>";
-var timelineTopPos = 20;
-var marginBottom = 20; // the margin between each timeline item
+var timelineTopPos = 20; // top start position of the timeline
+var marginBottom = 20;   // the margin between each timeline item
+var commitsPerEvent = 4; // default number of commits shown in each event
 var Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
 var timeRegex = /\w{3} (\w{3}) (\d{2}) (\d{4}) (\d{2}):(\d{2}):[^(]+\(([A-Z]{3})\)/;
 
@@ -204,9 +205,6 @@ var TimelineListView = Backbone.View.extend({
 	events: {
     'click #more-submit': 'refreshTimeline',
   },
-  refreshTimeline: function() {
-  	this.render();
-  },
 	childrenBottomPosition: function() {
 		var leftElements = this.$el.find('.left');
 		var rightElements = this.$el.find('.right');
@@ -246,6 +244,33 @@ var TimelineListView = Backbone.View.extend({
 		var pos = this.childrenBottomPosition();
 		this.$el.css({ height: Math.max(pos.left, pos.right) });
 	},
+	refreshTimeline: function(e) {
+		$(e.target).text(function(i, text){
+      return text === "more" ? "less" : "more";
+    });
+
+		var self = this;
+  	var children = $(e.delegateTarget).find('>li');
+  	this.$el.empty().prepend(timeline);
+
+  	children.css({top:'', left:'', right:''})
+  		.removeClass('left').removeClass('right')
+  		.removeClass('tooltip-left').removeClass('tooltip-right');
+
+  	$($(e.currentTarget.parentElement).find('li')).toggleClass('hidden');
+  	$($(e.currentTarget.parentElement).find('li:lt('+commitsPerEvent+')')).removeClass('hidden');
+
+  	_.each(children, function(child) {
+  		var specialPos = false;
+  		if ($(child).hasClass('create-event')) {
+  			specialPos = true;
+  			$(child).removeClass('create-event');
+  		}
+  		self.$el.append($(child));
+  		self.renderChildPosition($(child), specialPos);
+  	});
+  	this.renderTimelineHeight();	
+  },
 	renderChildPosition: function(child, specialPos) {
 		var pos = this.childrenBottomPosition();
 		var tooltip = (pos.class=='left') ? ' tooltip-right' : ' tooltip-left';
@@ -263,14 +288,15 @@ var TimelineListView = Backbone.View.extend({
 		child.css(properties);
 	},
 	renderTimeline: function(group) {
-		var timeline_view = new TimelineView({ model:group });
+		timeline_view = new TimelineView({ model:group });
 		var timelineEl = timeline_view.render().el;
 		var specialPos = (timeline_view.model.get('type') == 'CreateEvent') ? true : false;
 
 		if (timeline_view.model.get('type') == 'PushEvent') {
 			event_collection = new EventCollection(timeline_view.model.get('events'));
 			event_list_view = new EventListView({ collection: event_collection });
-			_.each(event_list_view.$el.find('li'), function(li) {
+			_.each(event_list_view.$el.find('li'), function(li, index) {
+				if (index >= 4) $(li).toggleClass('hidden');
 				timeline_view.$el.find('ul').append(li);
 			});
 		}

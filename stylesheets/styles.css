@@ -97,6 +97,9 @@ span.date {
 .actor-image {
 	height: 60px;
 }
+.hidden {
+	display: none;
+}
 
 span.square-left,
 span.square-right {
