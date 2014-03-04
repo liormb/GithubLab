@@ -26,7 +26,6 @@ var content = function(group) {
 		case "CreateEvent":
 			return {
 				type: event_type,
-				template: "Created: shamoons/try_git",
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
@@ -63,7 +62,6 @@ var content = function(group) {
 		case "ForkEvent":
 			return {
 				type: event_type,
-				template: "Forked shamoons/website from emberjs/website",
 				full_name: group[0].payload.forkee.full_name,
 				full_name_url: group[0].payload.forkee.html_url,
 				repo: group[0].repo.name,
@@ -80,7 +78,6 @@ var content = function(group) {
 		case "GistEvent":
 			return {
 				type: event_type,
-				template: "Created a gist",
 				description: group[0].payload.gist.description, // can be empty (Ex: "")
 				gist_url: "https://gist.github.com/" + group[0].payload.gist.id,
 				created_at: timeStampToString(group[0].created_at)										
@@ -88,7 +85,6 @@ var content = function(group) {
 		case "GollumEvent":
 			return {
 				type: event_type,
-				template: "Updated 1 page(s) for aaronwolfe/Big-A-Miner-Thing",
 				page_count: group[0].payload.pages.length,
 				page_name: group[0].payload.pages[0].page_name,
 				repo: group[0].repo.name,
@@ -98,7 +94,6 @@ var content = function(group) {
 		case "IssueCommentEvent":
 			return {
 				type: event_type,
-				template: "Commented on an issue on linnovate/mean",
 				issue: group[0].payload.comment.body,
 				issue_url: group[0].payload.issue.html_url,
 				repo: group[0].repo.name,
@@ -108,7 +103,6 @@ var content = function(group) {
 		case "IssuesEvent":
 			return {
 				type: event_type,
-				template: "Opened an issue on ppcoin/ppcoin",
 				issue_url: group[0].payload.issue.html_url,
 				body: group[0].payload.issue.body,
 				title: group[0].payload.issue.title,
@@ -119,7 +113,6 @@ var content = function(group) {
 		case "MemberEvent":
 			return {
 				type: event_type,
-				template: "Added as a collaborator to ppcoin/ppcoin",
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
@@ -133,7 +126,6 @@ var content = function(group) {
 		case "PullRequestEvent":
 			return {
 				type: event_type,
-				template: "Opened a pull request for emberjs/website",
 				event_type_url: group[0].payload.pull_request.html_url,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
@@ -148,7 +140,6 @@ var content = function(group) {
 		case "PushEvent":
 			return {
 				type: event_type,
-				template: "Pushed 1 commit(s) to shamoons/website",
 				count: group.length,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
@@ -273,15 +264,19 @@ var TimelineListView = Backbone.View.extend({
 	},
 	renderTimeline: function(group) {
 		var timeline_view = new TimelineView({ model:group });
+		var timelineEl = timeline_view.render().el;
 		var specialPos = (timeline_view.model.get('type') == 'CreateEvent') ? true : false;
-		this.$el.append( timeline_view.render().el );
-		this.renderChildPosition($(timeline_view.$el), specialPos);
 
 		if (timeline_view.model.get('type') == 'PushEvent') {
 			event_collection = new EventCollection(timeline_view.model.get('events'));
 			event_list_view = new EventListView({ collection: event_collection });
-		} 
+			_.each(event_list_view.$el.find('li'), function(li) {
+				timeline_view.$el.find('ul').append(li);
+			});
+		}
 
+		this.$el.append( timelineEl );
+		this.renderChildPosition($(timeline_view.$el), specialPos);
 		return this;
 	},
 	render: function() {
@@ -313,11 +308,10 @@ var EventView = Backbone.View.extend({
 });
 
 var EventListView = Backbone.View.extend({
-	el: $('#events-container'),
 	initialize: function(options) {
+		this.el = $('#events-container');
 		this.collection = options.collection;
 		this.render();
-		//console.dir(this.collection);
 	},
 	renderEvent: function(event) {
 		var event_view = new EventView({ model:event });
@@ -342,19 +336,6 @@ var UserEventCollection = Backbone.Collection.extend({
 	initialize: function(models, options) {
 		this.url = options.events_url;
 	},
-	groupByDate: function(commits) {
-		var groupsArray = [[]];
-		var index = 0;
-		for (var i=1; i < commits.length; i++) {
-			groupsArray[index].push(commits[i-1]);
-			if (timeStampToString(commits[i].attributes.created_at) != 
-				  timeStampToString(commits[i-1].attributes.created_at)) {
-				groupsArray.push([]);
-				index++;
-			}
-		}
-		return groupsArray;
-	},
 	model: UserEvent
 });
 
@@ -376,14 +357,14 @@ var User = Backbone.Model.extend({
 		}
 
 		$.when.apply($, responses).done(function() {
-			events = [];
+			var events = [];
 			_.each(responses, function(response) {
 				events = events.concat(response.responseJSON);
 			});
 
-			groups = self.createGroupEvents(events);
+			var groups = self.createGroupEvents(events);
 
-			timelines = [];
+			var timelines = [];
 			_.each(groups, function(group, index) {
 				timelines.push(new Timeline(content(group)));
 			});
