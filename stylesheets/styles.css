@@ -9,7 +9,7 @@ html {
 .top-header-container {
 	position: fixed;
 	height: 140px;
-	border-bottom: 4px solid orange;
+	border-bottom: 4px solid rgb(160,160,160);
 	background: rgb(245,245,245) url(../images/services.jpg) center center no-repeat;
 	-webkit-background-size: cover;
 	background-size: cover;
@@ -17,7 +17,16 @@ html {
 }
 .logo {
 	position: absolute;
-	top: 80px;
+	top: 35px;
+	left: 50px;
+	background: url(../images/logo.png) no-repeat;
+	width: 250px;
+	height: 80px;
+	text-indent: -9999px;
+}
+.lab {
+	position: absolute;
+	top: 100px;
 	left: -126px;
 	background: url(../images/lab.png) no-repeat;
 	width: 250px;
@@ -33,7 +42,7 @@ html {
 	left: -webkit-calc(50% - 2px);
 	width: 4px;
 	height: 110%;
-	background: orange;
+	background: rgb(160,160,160);
 }
 ul {
 	list-style-type: none;
@@ -45,7 +54,7 @@ ul {
 }
 #timeline-container > li {
 	position: absolute;
-	width: 475px;
+	width: 48.7%;
 	padding: 0 20px 20px;
 	border: 1px solid rgb(200,200,200);
 	border-radius: 4px;
@@ -56,19 +65,31 @@ ul {
 #timeline-container > li > ul {
 	padding-left: 0;
 }
-#timeline-container > li h1 {
+#events-container li {
+	margin-bottom: 12px;
+}
+#timeline-container li h1 {
 	font-size: 1.3em;
 }
-#timeline-container > li h2 {
+#timeline-container li h2 {
 	font-size: 1.1em;
 }
-#timeline-container > li h3 {
+#timeline-container li h3 {
 	font-size: 1em;
-}
-#timeline-container > li > li > h3 {
 	margin: 10px 0;
+	display: inline;
+	color: rgb(100,100,100);
 }
-#timeline-container > li span.date {
+#timeline-container li h3:nth-child(1) {
+	min-width: 60px;
+}
+#events-container li h3 span {
+	color: orange;
+}
+#timeline-container div.more  {
+	float: left;
+}
+span.date {
 	float: right;
 }
 .user-image {
@@ -93,14 +114,14 @@ span.square-right {
   background: orange; 
 }
 span.square-left {
-	right: -15px;
+	right: -3.4%;
 }
 span.square-right {
-	left: -16px;
+	left: -3.4%;
 }
 
 .create-event {
-	background: rgb(216,255,232) !important;
+	background: rgb(236,255,252) !important;
 	left: 25%;
 }
 

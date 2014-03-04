@@ -17,13 +17,14 @@
 	<div class="top-header-container col-lg-12">
 		<header class="container col-lg-10 col-md-offset-1">
 			<a href="/"><div class="logo">GithubLab</div></a>
+			<div class="lab"></div>
 
 			<div id="input-container" class="row">
 			  <div class="col-lg-4 col-lg-offset-4">
 			    <div class="input-group">
 			      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
 			      <span class="input-group-btn">
-			        <button id="user-submit" class="btn btn-warning" type="button">Search</button>
+			        <button id="user-submit" class="btn btn-warning" type="button">Lab</button>
 			      </span>
 			    </div>
 			  </div>
@@ -85,11 +86,18 @@
 		<% } else if (type == 'PushEvent'){ %>
 			<h1>Pushed <%= count %> commit(s) to <a href="<%= repo_url %>"><%= repo %></a></h1>
 	  	<ul id="events-container">
-	  		<% _.each(events, function(event){ %>
-	  			<li><h3><%= event.payload.commits[0].message %><h3></li>
+	  		<% _.each(events, function(event, index){ %>
+	  			<li <% if (index > 4){ %><%= "style='display:none;'" %><% } %>>
+	  				<a href="<%= 'https://github.com/' + repo + '/commit/' + event.payload.commits[0].sha %>">
+	  					<h3><span><%= event.payload.commits[0].sha.substring(0,7) %></span></h3>
+	  					<h3><%= event.payload.commits[0].message %><h3>
+	  				</a>
+	  			</li>
 	  		<% }) %>
 	  	</ul>
-			<div><a href="#">more</a></div>
+	  	<% if (events.length > 4){ %>
+				<button id="more-submit" class="btn btn-default btn-xs" type="button">more</button>
+			<% } %>
 			<span class="date"><%= created_at %></span>
 		<% } else if (type == 'WatchEvent'){ %>
 			<h1>Start watching <a href="<%= repo_url %>"><%= repo %></a></h1>
@@ -101,7 +109,15 @@
 		<% } %>
 	</script>
 
-	<!-- Commit -->
+	<!-- Single Event -->
+	<script id="event-item" type="text/template">
+		<a href="<%= 'https://github.com/' + repo + '/commit/' + event.payload.commits[0].sha %>">
+			<h3><span><%= event.payload.commits[0].sha.substring(0,7) %></span></h3>
+			<h3><%= event.payload.commits[0].message %><h3>
+		</a>
+	</script>
+
+	<!-- Single Commit -->
 	<script id="event-item" type="text/template">
 		<%= payload.commits[0].message %>
 	</script>
@@ -109,3 +125,6 @@
 	<script src="javascripts/githublab.js"></script>
 </body>
 </html>
+
+<!-- <div class="more"><a href="#">more</a></div> -->
+

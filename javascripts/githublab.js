@@ -1,5 +1,6 @@
 
 var timeline = "<div id='timeline-line'></div>";
+var timelineTopPos = 20;
 var Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
 var timeRegex = /\w{3} (\w{3}) (\d{2}) (\d{4}) (\d{2}):(\d{2}):[^(]+\(([A-Z]{3})\)/;
 
@@ -134,7 +135,7 @@ var content = function(group) {
 				template: "Opened a pull request for emberjs/website",
 				event_type_url: group[0].payload.pull_request.html_url,
 				repo: group[0].repo.name,
-				repo_url: group[0].repo.url,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)
 			};
 		case "PullRequestReviewCommentEvent":
@@ -149,7 +150,7 @@ var content = function(group) {
 				template: "Pushed 1 commit(s) to shamoons/website",
 				count: group.length,
 				repo: group[0].repo.name,
-				repo_url: group[0].repo.url,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				events: group,
 				created_at: timeStampToString(group[0].created_at)
 			};
@@ -177,7 +178,7 @@ var content = function(group) {
 				avatar_url: group[0].actor.avatar_url,
 				login: group[0].actor.login,
 				repo: group[0].repo.name,
-				repo_url: group[0].repo.url,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		default: break;
@@ -208,6 +209,12 @@ var TimelineListView = Backbone.View.extend({
 		this.collection = options.collection;
 		this.render();
 	},
+	events: {
+    'click #more-submit': 'refreshTimeline',
+  },
+  refreshTimeline: function() {
+  	this.render();
+  },
 	childrenBottomPosition: function() {
 		var leftElements = this.$el.find('.left');
 		var rightElements = this.$el.find('.right');
@@ -216,7 +223,7 @@ var TimelineListView = Backbone.View.extend({
 			var lastLeftEl = $(leftElements[leftElements.length - 1]);
 			var leftColBottomPos = lastLeftEl.position().top + lastLeftEl.outerHeight();
 		} else {
-			var leftColBottomPos = 0;
+			var leftColBottomPos = timelineTopPos;
 			var className = 'left';
 		}
 
@@ -224,7 +231,7 @@ var TimelineListView = Backbone.View.extend({
 			var lastRightEl = $(rightElements[rightElements.length - 1]);
 			var rightColBottomPos = lastRightEl.position().top + lastRightEl.outerHeight();
 		} else {
-			var rightColBottomPos = 0;
+			var rightColBottomPos = timelineTopPos;
 			var className = 'right';
 		}
 
@@ -237,7 +244,7 @@ var TimelineListView = Backbone.View.extend({
 		}
 
 		return {
-			top:topPos,              // most lower cordinate
+			top:topPos,              // next item starts from here
 			left:leftColBottomPos,   // lower left cordinate
 			right:rightColBottomPos, // lower right cordinate
 			class:className          // left or right
@@ -250,7 +257,7 @@ var TimelineListView = Backbone.View.extend({
 	renderChildPosition: function(child, specialPos) {
 		var pos = this.childrenBottomPosition();
 		var tooltip = (pos.class=='left') ? ' tooltip-right' : ' tooltip-left';
-		var marginBottom = 20;
+		var marginBottom = 40;
 		var properties = {};
 
 		if (specialPos) {
