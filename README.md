@@ -1,4 +1,3 @@
-
 #GithubLab
 By [Lior Elrom](http://liormb.com/).
 
@@ -12,10 +11,10 @@ By [Lior Elrom](http://liormb.com/).
 
 ##Screenshots
 
-![Example1](https://github.com/liormb/GithubLab/blob/master/images/githublab-image1.png)
+![Example1](images/githublab-image1.png)
 #####Welcome screen with different github users
 
-![Example2](https://github.com/liormb/GithubLab/blob/master/images/githublab-image1.png)
+![Example2](images/githublab-image1.png)
 #####Searching result of a user presented on a timeline
 
 
