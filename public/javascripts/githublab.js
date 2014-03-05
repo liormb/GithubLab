@@ -1,6 +1,6 @@
 
 var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
-var pages = 2;           // number of pages returning from Github API per user
+var pages = 10;           // number of pages returning from Github API per user
 var timelineTopPos = 40; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
 var commitsPerEvent = 4; // default number of commits shown in each event
@@ -263,19 +263,19 @@ var TimelineView = Backbone.View.extend({
 });
 
 /* assigning the right template to the right event */
-var CreateEventView= TimelineView.extend({ templateName: 'create-event' }),
-	DeleteEventView = TimelineView.extend({ templateName: 'delete-event' }),
-	PullRequestReviewCommentEventView = TimelineView.extend({ templateName: 'pull-request-review-comment-event' }),
+var PullRequestReviewCommentEventView = TimelineView.extend({ templateName: 'pull-request-review-comment-event' }),
+ 	PullRequestEventView   = TimelineView.extend({ templateName: 'pull-request-event' }),
+ 	IssueCommentEventView  = TimelineView.extend({ templateName: 'issue-comment-event' }),
 	CommitCommentEventView = TimelineView.extend({ templateName: 'commit-comment-event' }),
+	CreateEventView  = TimelineView.extend({ templateName: 'create-event' }),
+	DeleteEventView  = TimelineView.extend({ templateName: 'delete-event' }),
 	PushEventView    = TimelineView.extend({ templateName: 'push-event' }),
  	FollowEventView  = TimelineView.extend({ templateName: 'follow-event' }),
  	ForkEventView    = TimelineView.extend({ templateName: 'fork-event' }),
  	GistEventView    = TimelineView.extend({ templateName: 'gist-event' }),
  	GollumEventView  = TimelineView.extend({ templateName: 'gollum-event' }),
- 	IssueCommentEventView = TimelineView.extend({ templateName: 'issue-comment-event' }),
  	IssuesEventView  = TimelineView.extend({ templateName: 'issues-event' }),
  	MemberEventView  = TimelineView.extend({ templateName: 'member-event' }),
- 	PullRequestEventView  = TimelineView.extend({ templateName: 'pull-request-event' }),
  	WatchEventView   = TimelineView.extend({ templateName: 'watch-event' }),
  	DefaultEventView = TimelineView.extend({ templateName: 'default-event' });
 
@@ -398,19 +398,19 @@ var TimelineListView = Backbone.View.extend({
 	renderTimeline: function(group) {
 		/* setting which template to use for each event */
 		var viewClasses = {
-			"DeleteEvent" : DeleteEventView,
-			"PullRequestReviewCommentEvent" : PullRequestReviewCommentEventView,
-      "CreateEvent" : CreateEventView,
+			"PullRequestReviewCommentEvent": PullRequestReviewCommentEventView,
       "CommitCommentEvent": CommitCommentEventView,
+      "PullRequestEvent"  : PullRequestEventView,
+      "IssueCommentEvent" : IssueCommentEventView,
+			"DeleteEvent" : DeleteEventView,
+      "CreateEvent" : CreateEventView,
       "PushEvent"   : PushEventView,
       "FollowEvent" : FollowEventView,
       "ForkEvent"   : ForkEventView,
       "GistEvent"   : GistEventView,
       "GollumEvent" : GollumEventView,
-      "IssueCommentEvent": IssueCommentEventView,
       "IssuesEvent" : IssuesEventView,
       "MemberEvent" : MemberEventView,
-      "PullRequestEvent" : PullRequestEventView,
       "WatchEvent"  : WatchEventView,
       "DefaultEvent": DefaultEventView
 		};
@@ -487,12 +487,12 @@ var User = Backbone.Model.extend({
 		/* pass it to the TimelineListView for presenting it on screen.  */
 		$.when.apply($, responses).done(function() {
 			/* pulling all events from responces */
-			events = [];
+			var events = [];
 			_.each(responses, function(response) {
 				events = events.concat(response.responseJSON);
 			});
 			/* making groups */
-			groups = self.createGroupEvents(events);
+			var groups = self.createGroupEvents(events);
 
 			/* bulding a list of timeline models from groups  */
 			var timelines = [];
@@ -579,6 +579,7 @@ var UserInputView = Backbone.View.extend({
   submitCallBack: function(event) {
   	event.preventDefault();
   	var username = this.getUserInput();
+  	$('#main').remove();
 
   	/***** Passing the action to UserListView *****/
   	var users_list_view = new UserListView({ username: username });
@@ -592,9 +593,23 @@ var UserInputView = Backbone.View.extend({
   }
 });
 
-// add var around 468
+// Just a placeholder for the backgroud till I'll put something else
+function homePage() {
+	$.ajax({
+		url: "https://api.github.com/users",
+		type: "get",
+		dataType: 'json',
+		success: function(data) {
+			$('body').append("<div id='main' class='col-lg-12'></div>")
+			_.each(data, function(user) {
+				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
+			});
+		}
+	});
+}
 
 /* let's start rolling... */
 $(function() {
+	homePage();
 	new UserInputView;
 });
