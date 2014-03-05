@@ -48,13 +48,12 @@
 		</a>
 		<h1><a href="<%= html_url %>"><%= name || username %></a></h1>
 		<h2><%= "Joined on " + timeStampToString(created_at) %></h2>
-		<h3><%= email %></h3>	
 	</script>
 
 	<!-- Timeline Events -->
 	<script id="delete-event" class="col-xs-6 col-sm-4" type="text/template">
   	<h1>Deleted <%= ref_type %> from <a href="<%= repo_url %>"><%= repo %></a></h1>
-		<h3>reference: <%= ref %></h3>
+		<h3>referance: <%= ref %></h3>
 		<span class="date"><%= created_at %></span>
   </script>
 

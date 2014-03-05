@@ -57,7 +57,7 @@ html {
 	font-weight: normal; 
 }
 #user-container h1 {
-	margin-top: 28px;
+	margin-top: 38px;
 }
 #user-container h1 a {
 	color: orange;
@@ -221,7 +221,6 @@ span.square-right {
   #user-container h1 { margin-top: 34px; }
   #user-container div h1, #user-container div h2 { display: inline; font-size: 16px; margin-left: -2px; }
   #user-container div { margin-top: 90px; }
-	#user-container h3 { display: none; }
 }
 @media (max-width: 500px) {
 	#user-container div h1, #user-container div h2 { font-size: 12px; }
