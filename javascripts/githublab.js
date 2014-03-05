@@ -1,7 +1,7 @@
 
 var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
 var pages = 2;           // number of pages returning from Github API per user
-var timelineTopPos = 20; // top start position of the timeline
+var timelineTopPos = 40; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
 var commitsPerEvent = 4; // default number of commits shown in each event
 var Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
@@ -259,6 +259,11 @@ var CreateEventView= TimelineView.extend({ templateName: 'create-event' }),
 var TimelineListView = Backbone.View.extend({
 	el: $('#timeline-container'),
 	initialize: function(options) {
+		$(window).on('resize', function() {
+			if ($(window).width() <= 600) {
+				//needs to refresh the page by calling this.refreshTimeline
+			}	
+		});
 		this.collection = options.collection;
 		this.render(); /* auto rendering on every call */
 	},
@@ -428,8 +433,7 @@ var User = Backbone.Model.extend({
 	},
 	errorResponce: function(user, xhr) {
 		/* handle user or server errors */
-		console.log(xhr.status + ": " + xhr.responseText);
-		console.dir(xhr);
+		console.log("["+xhr.status+"]" + xhr.responseJSON.message);
 	},
 	getUserEvents: function() {
 		/* fetching user github's events from Github API */ 
@@ -524,6 +528,9 @@ var UserInputView = Backbone.View.extend({
 	initialize: function() {
 		this.$el = $('#input-container');
 	},
+	sanitizeInput: function(str) { 
+    return _.escape(str);
+  }, 
   events: {
     'click #user-submit': 'submitCallBack',
     "keyup #user-name" : "keyPressEventHandler"
@@ -536,19 +543,19 @@ var UserInputView = Backbone.View.extend({
   	event.preventDefault();
   	var username = this.getUserInput();
 
-  	/***** passing the action to UserListView *****/
+  	/***** Passing the action to UserListView *****/
   	var users_list_view = new UserListView({ username: username });
     this.clearUserInput();
   },
   getUserInput: function() {
-    return this.$('#user-name').val();
+    return this.sanitizeInput( this.$('#user-name').val() );
   },
   clearUserInput: function() {
     this.$('input').val('');
   }
 });
 
-/* let's start playing... */
+/* let's start rolling... */
 $(function() {
 	new UserInputView;
 });

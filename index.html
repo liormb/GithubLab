@@ -18,8 +18,10 @@
 		<header class="container col-lg-10 col-md-offset-1">
 			<div class="logo">GithubLab</div>
 			<!-- <div class="lab"></div> -->
+			<div id="user-container"></div>
+		</header>
 
-			<div id="input-container" class="row">
+		<div id="input-container" class="row">
 			  <div class="col-lg-4 col-lg-offset-4">
 			    <div class="input-group">
 			      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
@@ -29,9 +31,6 @@
 			    </div>
 			  </div>
 			</div>
-
-			<div id="user-container"></div>
-		</header>
 	</div>
 
 	<div class="container col-md-10 col-md-offset-1">
@@ -42,7 +41,11 @@
 
 	<!-- User Information -->
 	<script id="user-information" type="text/template">
-		<img class="user-image img-thumbnail" src="<%= avatar_url %>" title="<%= name || username %>" alt="<%= name || username %>">
+		<a href="<%= html_url %>" target="_blank">
+			<img class="user-image img-thumbnail" src="<%= avatar_url %>" title="<%= name || username %>" alt="<%= name || username %>">
+		</a>
+		<h1><a href="<%= html_url %>"><%= name || username %></a></h1>
+		<h2><%= "Joined on " + timeStampToString(created_at) %></h2>	
 	</script>
 
 	<!-- Timeline Events -->	
