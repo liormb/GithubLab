@@ -259,6 +259,7 @@ var CreateEventView= TimelineView.extend({ templateName: 'create-event' }),
 var TimelineListView = Backbone.View.extend({
 	el: $('#timeline-container'),
 	initialize: function(options) {
+		this.detatchEvents();
 		$(window).on('resize', function() {
 			if ($(window).width() <= 600) {
 				//needs to refresh the page by calling this.refreshTimeline
@@ -267,6 +268,14 @@ var TimelineListView = Backbone.View.extend({
 		this.collection = options.collection;
 		this.render(); /* auto rendering on every call */
 	},
+	detatchEvents: function() {
+		// when creating a new view, all old views still bound to old events
+		// which makes click event fire twise: one bc the old binding and another for the new binding
+		// unbinding old events upon creating new ones preventing it to happen 
+   	if (this.model != undefined) 
+   		this.model.unbind();
+   	$(this.el).unbind();
+  },
 	events: {
     'click #more-submit': 'refreshTimeline',
   },
@@ -312,6 +321,7 @@ var TimelineListView = Backbone.View.extend({
 		this.$el.css({ height: Math.max(pos.left, pos.right) });
 	},
 	refreshTimeline: function(e) {
+		e.stopPropagation();
 		/* refreshing the timeline by clearing and rebuilding it */
 		$(e.target).text(function(i, text){
       return text === "more" ? "less" : "more";

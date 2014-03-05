@@ -116,8 +116,12 @@ ul {
 #timeline-container div.more  {
 	float: left;
 }
+button#more-submit {
+	margin-top: 10px;
+}
 span.date {
 	float: right;
+	margin-top: 10px;
 }
 .actor-image {
 	height: 60px;
@@ -129,7 +133,11 @@ span.date {
 	background: rgb(236,255,252) !important;
 	background: rgb(240,240,240) !important;
 	left: 25%;
-	/*border: 2px solid white !important;*/
+	text-align: center !important;
+}
+.create-event span {
+	text-align: center !important;
+	float: none;
 }
 
 span.square-left,
