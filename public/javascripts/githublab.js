@@ -24,6 +24,12 @@ var content = function(group) {
 		case "CommitCommentEvent":
 			return {
 				type: event_type,
+				body: group[0].payload.comment.body,
+				comment_url: group[0].payload.comment.html_url,
+				user_avatar_url: group[0].payload.comment.user.avatar_url,
+				login: group[0].payload.comment.user.login,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "CreateEvent":
@@ -33,6 +39,15 @@ var content = function(group) {
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
+		case "DeleteEvent":
+			return {
+				type: event_type,
+				ref_type: group[0].payload.ref_type,
+				ref: group[0].payload.ref,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
+				created_at: timeStampToString(group[0].created_at)										
+			};	
 		case "DeploymentEvent":
 			return {
 				type: event_type,
@@ -132,6 +147,12 @@ var content = function(group) {
 		case "PullRequestReviewCommentEvent":
 			return {
 				type: event_type,
+				body: group[0].payload.comment.body,
+				html_url: group[0].payload.comment.html_url,
+				login: group[0].actor.login,
+				actor_url: group[0].actor.avatar_url, 
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "PushEvent":
@@ -243,6 +264,9 @@ var TimelineView = Backbone.View.extend({
 
 /* assigning the right template to the right event */
 var CreateEventView= TimelineView.extend({ templateName: 'create-event' }),
+	DeleteEventView = TimelineView.extend({ templateName: 'delete-event' }),
+	PullRequestReviewCommentEventView = TimelineView.extend({ templateName: 'pull-request-review-comment-event' }),
+	CommitCommentEventView = TimelineView.extend({ templateName: 'commit-comment-event' }),
 	PushEventView    = TimelineView.extend({ templateName: 'push-event' }),
  	FollowEventView  = TimelineView.extend({ templateName: 'follow-event' }),
  	ForkEventView    = TimelineView.extend({ templateName: 'fork-event' }),
@@ -259,6 +283,7 @@ var CreateEventView= TimelineView.extend({ templateName: 'create-event' }),
 var TimelineListView = Backbone.View.extend({
 	el: $('#timeline-container'),
 	initialize: function(options) {
+		this.detatchEvents();
 		$(window).on('resize', function() {
 			if ($(window).width() <= 600) {
 				//needs to refresh the page by calling this.refreshTimeline
@@ -267,6 +292,14 @@ var TimelineListView = Backbone.View.extend({
 		this.collection = options.collection;
 		this.render(); /* auto rendering on every call */
 	},
+	detatchEvents: function() {
+		// when creating a new view, all old views still bound to old events
+		// which makes click event fire twise: one bc the old binding and another for the new binding
+		// unbinding old events upon creating new ones preventing it to happen 
+   	if (this.model != undefined) 
+   		this.model.unbind();
+   	$(this.el).unbind();
+  },
 	events: {
     'click #more-submit': 'refreshTimeline',
   },
@@ -312,6 +345,7 @@ var TimelineListView = Backbone.View.extend({
 		this.$el.css({ height: Math.max(pos.left, pos.right) });
 	},
 	refreshTimeline: function(e) {
+		e.stopPropagation();
 		/* refreshing the timeline by clearing and rebuilding it */
 		$(e.target).text(function(i, text){
       return text === "more" ? "less" : "more";
@@ -364,7 +398,10 @@ var TimelineListView = Backbone.View.extend({
 	renderTimeline: function(group) {
 		/* setting which template to use for each event */
 		var viewClasses = {
+			"DeleteEvent" : DeleteEventView,
+			"PullRequestReviewCommentEvent" : PullRequestReviewCommentEventView,
       "CreateEvent" : CreateEventView,
+      "CommitCommentEvent": CommitCommentEventView,
       "PushEvent"   : PushEventView,
       "FollowEvent" : FollowEventView,
       "ForkEvent"   : ForkEventView,
@@ -450,12 +487,12 @@ var User = Backbone.Model.extend({
 		/* pass it to the TimelineListView for presenting it on screen.  */
 		$.when.apply($, responses).done(function() {
 			/* pulling all events from responces */
-			var events = [];
+			events = [];
 			_.each(responses, function(response) {
 				events = events.concat(response.responseJSON);
 			});
 			/* making groups */
-			var groups = self.createGroupEvents(events);
+			groups = self.createGroupEvents(events);
 
 			/* bulding a list of timeline models from groups  */
 			var timelines = [];
@@ -554,6 +591,8 @@ var UserInputView = Backbone.View.extend({
     this.$('input').val('');
   }
 });
+
+// add var around 468
 
 /* let's start rolling... */
 $(function() {
