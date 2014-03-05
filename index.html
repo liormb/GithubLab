@@ -33,9 +33,11 @@
 			</div>
 	</div>
 
-	<div class="container col-md-10 col-md-offset-1">
+	<div class="container col-md-10 col-md-offset-1 clearfix">
 		<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
 	</div>
+
+	<footer></footer>
 
 	<!-- ============================ Page Templates ============================ -->
 
@@ -45,10 +47,31 @@
 			<img class="user-image img-thumbnail" src="<%= avatar_url %>" title="<%= name || username %>" alt="<%= name || username %>">
 		</a>
 		<h1><a href="<%= html_url %>"><%= name || username %></a></h1>
-		<h2><%= "Joined on " + timeStampToString(created_at) %></h2>	
+		<h2><%= "Joined on " + timeStampToString(created_at) %></h2>
+		<h3><%= email %></h3>	
 	</script>
 
-	<!-- Timeline Events -->	
+	<!-- Timeline Events -->
+	<script id="delete-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Deleted <%= ref_type %> from <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<h3>reference: <%= ref %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+	<script id="pull-request-review-comment-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Commented on a <a href="<%= html_url %>">pull request</a> for <a href="<%= repo_url %>"><%= repo %></a></h1>
+  	<img class="actor-image" src="<%= actor_url %>" title="<%= login %>" alt="<%= login %>">
+		<h3><%= body %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+	<script id="commit-comment-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Commented on a <a href="<%= comment_url %>">commit</a> on <a href="<%= repo_url %>"><%= repo %></a></h1>
+  	<img class="actor-image" src="<%= user_avatar_url %>" title="<%= login %>" alt="<%= login %>">
+		<h3><%= body %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
   <script id="create-event" class="col-xs-6 col-sm-4" type="text/template">
   	<h1>Created: <a href="<%= repo_url %>"><%= repo %></a></h1>
 		<span class="date"><%= created_at %></span>
