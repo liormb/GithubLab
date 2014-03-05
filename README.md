@@ -14,7 +14,7 @@ By [Lior Elrom](http://liormb.com/).
 ![Example1](images/githublab-image1.png)
 #####Welcome screen with different github users
 
-![Example2](images/githublab-image1.png)
+![Example2](images/githublab-image2.png)
 #####Searching result of a user presented on a timeline
 
 
