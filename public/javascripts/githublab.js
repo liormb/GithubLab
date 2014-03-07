@@ -1,6 +1,6 @@
 
 var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
-var pages = 5;           // number of pages returning from Github API per user
+var pages = 10;          // number of pages returning from Github API per user
 var timelineTopPos = 40; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
 var commitsPerEvent = 4; // default number of commits shown in each event
@@ -18,16 +18,17 @@ function timeStampToString(timestamp) {
 }
 
 /* returning an timeline template for building the timeline model */
+// _.each(groups, function(group, i){if (group[0].type=='GistEvent') console.log(i);});
 var content = function(group) {
 	var event_type = (group != []) ? group[0].type : "";
 	switch (event_type) {
-		case "CommitCommentEvent":
+		case "CommitCommentEvent": // user: ezmobius, group[82]
 			return {
 				type: event_type,
-				body: group[0].payload.comment.body,
-				comment_url: group[0].payload.comment.html_url,
-				user_avatar_url: group[0].payload.comment.user.avatar_url,
-				login: group[0].payload.comment.user.login,
+				body: (group[0].payload.comment) ? group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,"") : "",
+				comment_url: (group[0].payload.comment) ? group[0].payload.comment.html_url : "https://github.com/" + group[0].repo.name + "/commit/" + group[0].payload.commit + "#commitcomment-" + group[0].payload.commit_id,
+				user_avatar_url: (group[0].payload.comment) ? group[0].payload.comment.user.avatar_url : "https://secure.gravatar.com/avatar/" + group[0].payload.actor_gravatar,
+				login: (group[0].payload.comment) ? group[0].payload.comment.user.login : group[0].payload.actor,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
@@ -66,10 +67,10 @@ var content = function(group) {
 		case "FollowEvent":
 			return {
 				type: event_type,
-				target_name: group[0].payload.target.name,
+				target_name: (group[0].payload.target.name) ? group[0].payload.target.name : group[0].payload.target.login,
 				target_login: group[0].payload.target.login,
-				target_avatar_url: group[0].payload.target.avatar_url,
-				target_url: group[0].payload.target.html_url,
+				target_avatar_url: (group[0].payload.target.avatar_url) ? group[0].payload.target.avatar_url : "https://secure.gravatar.com/avatar/"+group[0].payload.target.gravatar_id,
+				target_url: (group[0].payload.target.html_url) ? group[0].payload.target.html_url : "https://github.com/"+group[0].payload.target.login,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
@@ -77,11 +78,11 @@ var content = function(group) {
 		case "ForkEvent":
 			return {
 				type: event_type,
-				full_name: group[0].payload.forkee.full_name,
-				full_name_url: group[0].payload.forkee.html_url,
+				full_name: (group[0].payload.forkee.full_name) ? group[0].payload.forkee.full_name : group[0].repo.name,
+				full_name_url: (group[0].payload.forkee.html_url) ? group[0].payload.forkee.html_url : "https://github.com/" + group[0].repo.name,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				description: group[0].payload.forkee.description,
+				description: (group[0].payload.forkee.description) ? group[0].payload.forkee.description : "",
 				created_at: timeStampToString(group[0].created_at)
 			}
 		case "ForkApplyEvent":
@@ -92,8 +93,10 @@ var content = function(group) {
 		case "GistEvent":
 			return {
 				type: event_type,
-				description: group[0].payload.gist.description, // can be empty (Ex: "")
-				gist_url: "https://gist.github.com/" + group[0].payload.gist.id,
+				name: group[0].payload.name,
+				desc: (group[0].payload.desc != undefined) ? group[0].payload.desc : group[0].payload.gist.description,
+				snippet: group[0].payload.snippet,
+				gist_url: (group[0].payload.url) ? group[0].payload.url : "https://gist.github.com/" + group[0].payload.gist.id,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "GollumEvent":
@@ -108,8 +111,8 @@ var content = function(group) {
 		case "IssueCommentEvent":
 			return {
 				type: event_type,
-				issue: group[0].payload.comment.body,
-				issue_url: group[0].payload.issue.html_url,
+				issue: (group[0].payload.issue_id) ? group[0].payload.issue_id : group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,""),
+				issue_url: (group[0].payload.comment_id) ? "https://api.github.com/repos/omarkhan/coffeedoc/issues/comments/"+group[0].payload.comment_id : group[0].payload.comment.url,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
@@ -118,7 +121,7 @@ var content = function(group) {
 			return {
 				type: event_type,
 				issue_url: group[0].payload.issue.html_url,
-				body: group[0].payload.issue.body,
+				body: group[0].payload.issue.body.replace(/(<([^>]+)>)/ig,""),
 				title: group[0].payload.issue.title,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
@@ -134,6 +137,10 @@ var content = function(group) {
 		case "PublicEvent":
 			return {
 				type: event_type,
+				login: group[0].actor.login,
+				actor_url: group[0].actor.avatar_url, 
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "PullRequestEvent":
@@ -147,7 +154,7 @@ var content = function(group) {
 		case "PullRequestReviewCommentEvent":
 			return {
 				type: event_type,
-				body: group[0].payload.comment.body,
+				body: group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,""),
 				html_url: group[0].payload.comment.html_url,
 				login: group[0].actor.login,
 				actor_url: group[0].actor.avatar_url, 
@@ -167,6 +174,13 @@ var content = function(group) {
 		case "ReleaseEvent":
 			return {
 				type: event_type,
+				body: group[0].payload.release.assets.body.replace(/(<([^>]+)>)/ig,""),
+				html_url: group[0].payload.release.assets.html_url,
+				tag_name: group[0].payload.release.assets.tag_name,
+				login: group[0].actor.login,
+				avatar_url: group[0].actor.avatar_url,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
 			};
 		case "StatusEvent":
@@ -267,6 +281,8 @@ var PullRequestReviewCommentEventView = TimelineView.extend({ templateName: 'pul
  	PullRequestEventView   = TimelineView.extend({ templateName: 'pull-request-event' }),
  	IssueCommentEventView  = TimelineView.extend({ templateName: 'issue-comment-event' }),
 	CommitCommentEventView = TimelineView.extend({ templateName: 'commit-comment-event' }),
+	ReleaseEventView = TimelineView.extend({ templateName: 'release-event' }),
+	PublicEventView  = TimelineView.extend({ templateName: 'public-event' }),
 	CreateEventView  = TimelineView.extend({ templateName: 'create-event' }),
 	DeleteEventView  = TimelineView.extend({ templateName: 'delete-event' }),
 	PushEventView    = TimelineView.extend({ templateName: 'push-event' }),
@@ -376,7 +392,7 @@ var TimelineListView = Backbone.View.extend({
   		self.$el.append($(child));
   		self.renderChildPosition($(child), specialPos);
   	});
-  	this.renderTimelineHeight();	
+  	this.renderTimelineHeight();
   },
 	renderChildPosition: function($child, specialPos) {
 		/* setting every timeline item position */
@@ -402,6 +418,8 @@ var TimelineListView = Backbone.View.extend({
       "CommitCommentEvent": CommitCommentEventView,
       "PullRequestEvent"  : PullRequestEventView,
       "IssueCommentEvent" : IssueCommentEventView,
+      "ReleaseEvent": ReleaseEventView,
+      "PublicEvent" : PublicEventView,
 			"DeleteEvent" : DeleteEventView,
       "CreateEvent" : CreateEventView,
       "PushEvent"   : PushEventView,
@@ -433,7 +451,11 @@ var TimelineListView = Backbone.View.extend({
 		this.renderChildPosition($(timeline_view.$el), specialPos);
 		return this;
 	},
+	renderFooter: function() {
+		$('footer').css('display','block').find('span').html(new Date().getFullYear());
+	},
 	render: function() {
+		this.renderFooter();
 		var self = this;
 		this.$el.empty().prepend($timeline);
 		_.each(this.collection.models, function(group) {
@@ -454,6 +476,7 @@ var Responce = Backbone.Model.extend({});
 var ResponceCollection = Backbone.Collection.extend({
 	initialize: function(models, options) {
 		this.url = options.events_url;
+		this.accept = "application/vnd.github.v3+json";
 	},
 	model: Responce
 });
@@ -479,7 +502,7 @@ var User = Backbone.Model.extend({
 
 		var responses = [];
 		for (var i=1; i <= pages; i++) {
-			var response = user_events.fetch({ add: true, data: {page: i} });	
+			var response = user_events.fetch({ add: true, data: {page: i}, headers: {'Accept' : "application/vnd.github.v3+json"} });	
 			responses.push(response);
 		}
 
@@ -492,7 +515,7 @@ var User = Backbone.Model.extend({
 				events = events.concat(response.responseJSON);
 			});
 			/* making groups */
-			var groups = self.createGroupEvents(events);
+			groups = self.createGroupEvents(events);
 
 			/* bulding a list of timeline models from groups  */
 			var timelines = [];
@@ -600,7 +623,7 @@ function homePage() {
 		type: "get",
 		dataType: 'json',
 		success: function(data) {
-			$('body').append("<div id='main' class='col-lg-12'></div>")
+			$('body').append("<div id='main' class='col-lg-12'></div>");
 			_.each(data, function(user) {
 				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
 			});

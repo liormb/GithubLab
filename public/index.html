@@ -13,27 +13,30 @@
 	<link rel="stylesheet" href="stylesheets/styles.css">
 </head>
 <body>
-	<div class="top-header-container col-lg-12">
-		<header class="container col-lg-10 col-md-offset-1">
-			<div class="logo">GithubLab</div>
-			<!-- <div class="lab"></div> -->
-			<div id="user-container"></div>
-		</header>
+	<div id="main-container" class="container col-lg-12">
+		<div class="top-header-container col-lg-12">
+			<header class="container col-lg-10 col-md-offset-1">
+				<a href="/"><div class="logo">GithubLab</div></a>
+				<div id="user-container"></div>
+			</header>
 
-		<div id="input-container" class="row">
-			  <div class="col-lg-4 col-lg-offset-4">
-			    <div class="input-group">
-			      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
-			      <span class="input-group-btn">
-			        <button id="user-submit" class="btn btn-warning" type="button">Lab</button>
-			      </span>
-			    </div>
-			  </div>
-			</div>
-	</div>
+			<div id="input-container" class="row">
+				  <div class="col-lg-4 col-lg-offset-4">
+				    <div class="input-group">
+				      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
+				      <span class="input-group-btn">
+				        <button id="user-submit" class="btn btn-warning" type="button">Lab</button>
+				      </span>
+				    </div>
+				  </div>
+				</div>
+		</div>
 
-	<div class="container col-md-10 col-md-offset-1 clearfix">
-		<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
+		<div class="container col-md-10 col-md-offset-1 clearfix">
+			<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
+		</div>
+
+		<footer class="container clearfix">Copyright © <span class="year"></span><a href="https://github.com/liormb" target="_blank"> Lior Elrom </a>. All rights reserved.</footer>
 	</div>
 
 	<!-- ============================ Page Templates ============================ -->
@@ -54,6 +57,20 @@
 		<span class="date"><%= created_at %></span>
   </script>
 
+  <script id="release-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Published a new <a href="<%= html_url %>"> release </a> from <a href="<%= repo_url %>"><%= repo %></a></h1>
+  	<img class="actor-image" src="<%= avatar_url %>" title="<%= login %>" alt="<%= login %>">
+		<h3><%= tag_name %></h3>
+		<h3><%= body %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="public-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Opened <a href="<%= repo_url %>"><%= repo %></a> as an open source</h1>
+  	<img class="actor-image" src="<%= actor_url %>" title="<%= login %>" alt="<%= login %>">
+		<span class="date"><%= created_at %></span>
+  </script>
+
 	<script id="pull-request-review-comment-event" class="col-xs-6 col-sm-4" type="text/template">
   	<h1>Commented on a <a href="<%= html_url %>">pull request</a> for <a href="<%= repo_url %>"><%= repo %></a></h1>
   	<img class="actor-image" src="<%= actor_url %>" title="<%= login %>" alt="<%= login %>">
@@ -64,7 +81,7 @@
 	<script id="commit-comment-event" class="col-xs-6 col-sm-4" type="text/template">
   	<h1>Commented on a <a href="<%= comment_url %>">commit</a> on <a href="<%= repo_url %>"><%= repo %></a></h1>
   	<img class="actor-image" src="<%= user_avatar_url %>" title="<%= login %>" alt="<%= login %>">
-		<h3><%= body %></h3>
+		<% if (body){ %><h3><%= body %></h3><% } %>
 		<span class="date"><%= created_at %></span>
   </script>
 
@@ -83,22 +100,26 @@
 	</script>
 
   <script id="follow-event" class="col-xs-6 col-sm-4" type="text/template">
-  	<h1>Started following <a href="<%= target_url %>"><%= target_name || target_login %></h1>
+  	<h1>Start following <a href="<%= target_url %>"><%= target_name || target_login %></h1>
 		<img class="actor-image" src="<%= target_avatar_url %>" title="<%= target_name || target_login %>" alt="<%= target_name || target_login %>">
 		<span class="date"><%= created_at %></span>
   </script>
 
 	<script id="fork-event" class="col-xs-6 col-sm-4" type="text/template">
 		<h1>Forked <a href="<%= full_name_url %>"><%= full_name %></a> from <a href="<%= repo_url %>"><%= repo %></a></h1>
-		<h3><%= description %></h3>
+		<% if (description != ""){ %>
+			<h3><%= description %></h3>
+		<% } %>
 		<span class="date"><%= created_at %></span>
   </script>
 
   <script id="gist-event" class="col-xs-6 col-sm-4" type="text/template">
   	<h1>Created a <a href="<%= gist_url %>">gist</a></h1>
-		<% if (description != ""){ %>
-			<h3><%= description %></h3>
+  	<h3><%= name %></h3>
+		<% if (desc != ""){ %>
+			<h3><%= desc %></h3>
 		<% } %>
+		<h3><%= snippet %></h3>
 		<span class="date"><%= created_at %></span>
   </script>
 
@@ -142,17 +163,20 @@
 		<h3><%= type %></h3>
   </script>
 
-	<!-- Single Commit Event -->
+	<!-- Single Commit Event 151-->
 	<script id="commit-item" type="text/template">
-		<a href="<%= 'https://github.com/' + repo.name + '/commit/' + payload.commits[0].sha %>">
-			<h3><span><%= payload.commits[0].sha.substring(0,7) %></span></h3>
-			<h3><%= payload.commits[0].message %><h3>
+		<% var sha = (payload.head) ? payload.head : payload.shas[0][0]; %>
+		<% var message = (payload.commits) ? ((payload.commits.length>0) ? payload.commits[0].message : "Unknown") : payload.shas[0][2]; %>
+		<a href="<%= 'https://github.com/' + repo.name + '/commit/' + sha %>">
+			<h3><span><%= sha.substring(0,7) %></span></h3>
+			<h3><%= message %><h3>
 		</a>
 	</script>
 
 	<!-- Single Commit Message -->
 	<script id="event-item" type="text/template">
-		<%= payload.commits[0].message %>
+		<% var message = (payload.commits) ? ((payload.commits.length>0) ? payload.commits[0].message : "Unknown") : payload.shas[0][2]; %>
+		<%= message %>
 	</script>
 
 	<script src="javascripts/githublab.js"></script>
