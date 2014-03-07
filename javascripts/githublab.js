@@ -451,8 +451,11 @@ var TimelineListView = Backbone.View.extend({
 		this.renderChildPosition($(timeline_view.$el), specialPos);
 		return this;
 	},
+	renderFooter: function() {
+		$('footer').css('display','block').find('span').html(new Date().getFullYear());
+	},
 	render: function() {
-		$('footer').css('display', 'block');
+		this.renderFooter();
 		var self = this;
 		this.$el.empty().prepend($timeline);
 		_.each(this.collection.models, function(group) {
