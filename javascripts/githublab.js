@@ -25,10 +25,10 @@ var content = function(group) {
 		case "CommitCommentEvent": // user: ezmobius, group[82]
 			return {
 				type: event_type,
-				body: group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,""),
-				comment_url: group[0].payload.comment.html_url,
-				user_avatar_url: group[0].payload.comment.user.avatar_url,
-				login: group[0].payload.comment.user.login,
+				body: (group[0].payload.comment) ? group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,"") : "",
+				comment_url: (group[0].payload.comment) ? group[0].payload.comment.html_url : "https://github.com/" + group[0].repo.name + "/commit/" + group[0].payload.commit + "#commitcomment-" + group[0].payload.commit_id,
+				user_avatar_url: (group[0].payload.comment) ? group[0].payload.comment.user.avatar_url : "https://secure.gravatar.com/avatar/" + group[0].payload.actor_gravatar,
+				login: (group[0].payload.comment) ? group[0].payload.comment.user.login : group[0].payload.actor,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)										
@@ -174,7 +174,7 @@ var content = function(group) {
 		case "ReleaseEvent":
 			return {
 				type: event_type,
-				body: group[0].payload.release.assets.body,
+				body: group[0].payload.release.assets.body.replace(/(<([^>]+)>)/ig,""),
 				html_url: group[0].payload.release.assets.html_url,
 				tag_name: group[0].payload.release.assets.tag_name,
 				login: group[0].actor.login,
@@ -392,7 +392,7 @@ var TimelineListView = Backbone.View.extend({
   		self.$el.append($(child));
   		self.renderChildPosition($(child), specialPos);
   	});
-  	this.renderTimelineHeight();	
+  	this.renderTimelineHeight();
   },
 	renderChildPosition: function($child, specialPos) {
 		/* setting every timeline item position */
@@ -452,6 +452,7 @@ var TimelineListView = Backbone.View.extend({
 		return this;
 	},
 	render: function() {
+		$('footer').css('display', 'block');
 		var self = this;
 		this.$el.empty().prepend($timeline);
 		_.each(this.collection.models, function(group) {
@@ -619,7 +620,7 @@ function homePage() {
 		type: "get",
 		dataType: 'json',
 		success: function(data) {
-			$('body').append("<div id='main' class='col-lg-12'></div>")
+			$('body').append("<div id='main' class='col-lg-12'></div>");
 			_.each(data, function(user) {
 				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
 			});

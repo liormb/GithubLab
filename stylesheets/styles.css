@@ -6,14 +6,41 @@ html {
   -o-background-size: cover;
   background-size: cover;
 }
+footer {
+	display: none;
+	position: absolute;
+	left: 0;
+	bottom: -300px;
+	width: 100% !important;
+	height: 80px;
+	border-top: 4px solid rgb(160,160,160);
+	padding-top: 30px;
+	text-align: center;
+	line-height: 20px;
+	background: rgb(145,145,145);
+	color: rgb(255,255,255);
+}
+footer a {
+	color: orange;
+}
+footer a:hover {
+	color: rgb(255,255,255);
+}
+#main-container {
+	position: relative;
+	top: 0;
+	left: 0;
+	padding: 0;
+	overflow-x: hidden; 
+}
 #main {
 	position: fixed;
 	top: 180px;
 	left: -20px;
 	width: 120%;
 	height: 120%;
-	overflow: hidden;
 	opacity: .5;
+	overflow: hidden;
 }
 .users-image {
 	float: left;
@@ -85,7 +112,7 @@ html {
 	bottom: 0px;
 	left: -webkit-calc(50% - 2px);
 	width: 4px;
-	height: 106%;
+	height: -webkit-calc(100% + 160px);
 	background: rgb(160,160,160);
 }
 ul {
@@ -97,6 +124,7 @@ ul {
 	padding: 0;
 }
 #timeline-container > li {
+	word-wrap: break-word;
 	position: absolute;
 	width: 48.7%;
 	padding: 0 20px 20px;

@@ -13,26 +13,30 @@
 	<link rel="stylesheet" href="stylesheets/styles.css">
 </head>
 <body>
-	<div class="top-header-container col-lg-12">
-		<header class="container col-lg-10 col-md-offset-1">
-			<div class="logo">GithubLab</div>
-			<div id="user-container"></div>
-		</header>
+	<div id="main-container" class="container col-lg-12">
+		<div class="top-header-container col-lg-12">
+			<header class="container col-lg-10 col-md-offset-1">
+				<a href="/"><div class="logo">GithubLab</div></a>
+				<div id="user-container"></div>
+			</header>
 
-		<div id="input-container" class="row">
-			  <div class="col-lg-4 col-lg-offset-4">
-			    <div class="input-group">
-			      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
-			      <span class="input-group-btn">
-			        <button id="user-submit" class="btn btn-warning" type="button">Lab</button>
-			      </span>
-			    </div>
-			  </div>
-			</div>
-	</div>
+			<div id="input-container" class="row">
+				  <div class="col-lg-4 col-lg-offset-4">
+				    <div class="input-group">
+				      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
+				      <span class="input-group-btn">
+				        <button id="user-submit" class="btn btn-warning" type="button">Lab</button>
+				      </span>
+				    </div>
+				  </div>
+				</div>
+		</div>
 
-	<div class="container col-md-10 col-md-offset-1 clearfix">
-		<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
+		<div class="container col-md-10 col-md-offset-1 clearfix">
+			<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
+		</div>
+
+		<footer class="container clearfix">Copyright © 2014 <a href="https://github.com/liormb" target="_blank">Lior Elrom </a>. All rights reserved.</footer>
 	</div>
 
 	<!-- ============================ Page Templates ============================ -->
@@ -77,7 +81,7 @@
 	<script id="commit-comment-event" class="col-xs-6 col-sm-4" type="text/template">
   	<h1>Commented on a <a href="<%= comment_url %>">commit</a> on <a href="<%= repo_url %>"><%= repo %></a></h1>
   	<img class="actor-image" src="<%= user_avatar_url %>" title="<%= login %>" alt="<%= login %>">
-		<h3><%= body %></h3>
+		<% if (body){ %><h3><%= body %></h3><% } %>
 		<span class="date"><%= created_at %></span>
   </script>
 
@@ -159,10 +163,10 @@
 		<h3><%= type %></h3>
   </script>
 
-	<!-- Single Commit Event -->
+	<!-- Single Commit Event 151-->
 	<script id="commit-item" type="text/template">
-		<% sha = (payload.commits != undefined) ? payload.commits[0].sha : payload.shas[0][0]; %>
-		<% message = (payload.commits != undefined) ? payload.commits[0].message : payload.shas[0][2]; %>
+		<% var sha = (payload.head) ? payload.head : payload.shas[0][0]; %>
+		<% var message = (payload.commits) ? ((payload.commits.length>0) ? payload.commits[0].message : "Unknown") : payload.shas[0][2]; %>
 		<a href="<%= 'https://github.com/' + repo.name + '/commit/' + sha %>">
 			<h3><span><%= sha.substring(0,7) %></span></h3>
 			<h3><%= message %><h3>
@@ -171,7 +175,7 @@
 
 	<!-- Single Commit Message -->
 	<script id="event-item" type="text/template">
-		<% message = (payload.commits != undefined) ? payload.commits[0].message : payload.shas[0][2]; %>
+		<% var message = (payload.commits) ? ((payload.commits.length>0) ? payload.commits[0].message : "Unknown") : payload.shas[0][2]; %>
 		<%= message %>
 	</script>
 
