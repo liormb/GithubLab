@@ -174,9 +174,9 @@ var content = function(group) {
 		case "ReleaseEvent":
 			return {
 				type: event_type,
-				body: group[0].payload.release.assets.body.replace(/(<([^>]+)>)/ig,""),
-				html_url: group[0].payload.release.assets.html_url,
-				tag_name: group[0].payload.release.assets.tag_name,
+				body: group[0].payload.release.body.replace(/(<([^>]+)>)/ig,""),
+				html_url: group[0].payload.release.html_url,
+				tag_name: group[0].payload.release.tag_name,
 				login: group[0].actor.login,
 				avatar_url: group[0].actor.avatar_url,
 				repo: group[0].repo.name,
@@ -515,7 +515,7 @@ var User = Backbone.Model.extend({
 				events = events.concat(response.responseJSON);
 			});
 			/* making groups */
-			groups = self.createGroupEvents(events);
+			var groups = self.createGroupEvents(events);
 
 			/* bulding a list of timeline models from groups  */
 			var timelines = [];
@@ -523,7 +523,7 @@ var User = Backbone.Model.extend({
 				timelines.push(new Timeline(content(group)));
 			});
 			/***** passing the action (list) to TimelineListView *****/
-			timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines) });
+			var timeline_list_view = new TimelineListView({ collection: new TimelineCollection(timelines) });
 		});
 	},
 	createGroupEvents: function(events) {
