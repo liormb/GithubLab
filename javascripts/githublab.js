@@ -31,14 +31,14 @@ var content = function(group) {
 				login: (group[0].payload.comment) ? group[0].payload.comment.user.login : group[0].payload.actor,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "CreateEvent":
 			return {
 				type: event_type,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "DeleteEvent":
 			return {
@@ -47,22 +47,22 @@ var content = function(group) {
 				ref: group[0].payload.ref,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
-			};	
+				created_at: timeStampToString(group[0].created_at)
+			};
 		case "DeploymentEvent":
 			return {
 				type: event_type,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "DeploymentStatusEvent":
 			return {
 				type: event_type,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "DownloadEvent":
 			return {
 				type: event_type,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "FollowEvent":
 			return {
@@ -73,7 +73,7 @@ var content = function(group) {
 				target_url: (group[0].payload.target.html_url) ? group[0].payload.target.html_url : "https://github.com/"+group[0].payload.target.login,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "ForkEvent":
 			return {
@@ -88,7 +88,7 @@ var content = function(group) {
 		case "ForkApplyEvent":
 			return {
 				type: event_type,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "GistEvent":
 			return {
@@ -97,7 +97,7 @@ var content = function(group) {
 				desc: (group[0].payload.desc != undefined) ? group[0].payload.desc : group[0].payload.gist.description,
 				snippet: group[0].payload.snippet,
 				gist_url: (group[0].payload.url) ? group[0].payload.url : "https://gist.github.com/" + group[0].payload.gist.id,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "GollumEvent":
 			return {
@@ -106,33 +106,33 @@ var content = function(group) {
 				page_name: group[0].payload.pages[0].page_name,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "IssueCommentEvent":
 			return {
 				type: event_type,
 				issue: (group[0].payload.issue_id) ? group[0].payload.issue_id : group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,""),
-				issue_url: (group[0].payload.comment_id) ? "https://api.github.com/repos/omarkhan/coffeedoc/issues/comments/"+group[0].payload.comment_id : group[0].payload.comment.url,
+				issue_url: (group[0].payload.comment_id) ? "https://github.com/repos/omarkhan/coffeedoc/issues/comments/"+group[0].payload.comment_id : group[0].payload.comment.url,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "IssuesEvent":
 			return {
 				type: event_type,
-				issue_url: group[0].payload.issue.html_url,
-				body: group[0].payload.issue.body.replace(/(<([^>]+)>)/ig,""),
-				title: group[0].payload.issue.title,
+				issue_url: (group[0].payload.issue.html_url) ? group[0].payload.issue.html_url : "https://github.com/" + group[0].repo.name + "/issues/" + group[0].payload.number,
+				body: (group[0].payload.issue.body) ? group[0].payload.issue.body.replace(/(<([^>]+)>)/ig,"") : "Public issue #: " + group[0].payload.issue,
+				title: (group[0].payload.issue.title) ? group[0].payload.issue.title : "",
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "MemberEvent":
 			return {
 				type: event_type,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "PublicEvent":
 			return {
@@ -141,7 +141,7 @@ var content = function(group) {
 				actor_url: group[0].actor.avatar_url, 
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "PullRequestEvent":
 			return {
@@ -160,7 +160,7 @@ var content = function(group) {
 				actor_url: group[0].actor.avatar_url, 
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "PushEvent":
 			return {
@@ -181,17 +181,17 @@ var content = function(group) {
 				avatar_url: group[0].actor.avatar_url,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "StatusEvent":
 			return {
 				type: event_type,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "TeamAddEvent":
 			return {
 				type: event_type,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		case "WatchEvent":
 			return {
@@ -200,7 +200,7 @@ var content = function(group) {
 				login: group[0].actor.login,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)										
+				created_at: timeStampToString(group[0].created_at)
 			};
 		default: 
 			return {
