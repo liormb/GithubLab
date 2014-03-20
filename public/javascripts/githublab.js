@@ -22,7 +22,7 @@ function timeStampToString(timestamp) {
 var content = function(group) {
 	var event_type = (group != []) ? group[0].type : "";
 	switch (event_type) {
-		case "CommitCommentEvent": // user: ezmobius, group[82]
+		case "CommitCommentEvent":
 			return {
 				type: event_type,
 				body: (group[0].payload.comment) ? group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,"") : "",
@@ -88,6 +88,10 @@ var content = function(group) {
 		case "ForkApplyEvent":
 			return {
 				type: event_type,
+				patch: group[0].payload.original,
+				sha: group[0].payload.commit,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)
 			};
 		case "GistEvent":
@@ -191,6 +195,10 @@ var content = function(group) {
 		case "TeamAddEvent":
 			return {
 				type: event_type,
+				login: group[0].actor.login,
+				permission: group[0].payload.team.permission,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)
 			};
 		case "WatchEvent":
@@ -293,7 +301,13 @@ var PullRequestReviewCommentEventView = TimelineView.extend({ templateName: 'pul
  	IssuesEventView  = TimelineView.extend({ templateName: 'issues-event' }),
  	MemberEventView  = TimelineView.extend({ templateName: 'member-event' }),
  	WatchEventView   = TimelineView.extend({ templateName: 'watch-event' }),
- 	DefaultEventView = TimelineView.extend({ templateName: 'default-event' });
+ 	DeploymentStatusEventView = TimelineView.extend({ templateName: 'deployment-status-event' }),
+ 	DeploymentEventView = TimelineView.extend({ templateName: 'deployment-event' }),
+	DownloadEventView   = TimelineView.extend({ templateName: 'download-event' }),
+	ForkApplyEventView  = TimelineView.extend({ templateName: 'fork-apply-event' }),
+	StatusEventView  = TimelineView.extend({ templateName: 'status-event' }),
+	TeamAddEventView = TimelineView.extend({ templateName: 'team-add-event' }),
+	DefaultEventView = TimelineView.extend({ templateName: 'default-event' });
 
 /* rendering the view with all event on a single timeline */
 var TimelineListView = Backbone.View.extend({
@@ -430,7 +444,13 @@ var TimelineListView = Backbone.View.extend({
       "IssuesEvent" : IssuesEventView,
       "MemberEvent" : MemberEventView,
       "WatchEvent"  : WatchEventView,
-      "DefaultEvent": DefaultEventView
+      "DeploymentStatusEvent": DeploymentStatusEventView,
+		 	"DeploymentEvent": DeploymentEventView,
+			"DownloadEvent"  : DownloadEventView,
+			"ForkApplyEvent" : ForkApplyEventView,
+			"StatusEvent" : StatusEventView,
+			"TeamAddEvent": TeamAddEventView,
+			"DefaultEvent": DefaultEventView
 		};
 		var timeline_view_class = viewClasses[ group.get("type") ];
 		var timeline_view = new timeline_view_class({ model: group });
@@ -515,7 +535,7 @@ var User = Backbone.Model.extend({
 				events = events.concat(response.responseJSON);
 			});
 			/* making groups */
-			var groups = self.createGroupEvents(events);
+			groups = self.createGroupEvents(events);
 
 			/* bulding a list of timeline models from groups  */
 			var timelines = [];
@@ -534,8 +554,10 @@ var User = Backbone.Model.extend({
 			groups[index].push(events[i-1]);
 			if (!(events[i-1].type == 'PushEvent' && events[i].type == 'PushEvent' && 
 					timeStampToString(events[i].created_at) == timeStampToString(events[i-1].created_at))) {
-				groups.push([]);
-				index++;
+				if (!(events[i-1].type == "CreateEvent" && events[i-1].repo.id == events[i].repo.id)) {
+					groups.push([]);
+					index++;
+				}
 			}
 		}
 		groups.pop();
@@ -616,6 +638,16 @@ var UserInputView = Backbone.View.extend({
   }
 });
 
+function shuffle(array) {
+  for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+  }
+  return array;
+}
+
 // Just a placeholder for the backgroud till I'll put something else
 function homePage() {
 	$.ajax({
@@ -624,12 +656,12 @@ function homePage() {
 		dataType: 'json',
 		success: function(data) {
 			$('body').append("<div id='main' class='col-lg-12'></div>");
-			_.each(data, function(user) {
+			_.each(shuffle(data), function(user) {
 				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
 			});
 		}
 	});
-}
+};
 
 /* let's start rolling... */
 $(function() {

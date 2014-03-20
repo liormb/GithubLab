@@ -5,9 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>GithubLab</title>
 	<script src="lib/jquery-1.11.0.min.js"></script>
-	<script src="lib/underscore.js"></script>
+	<script src="lib/underscore-min.js"></script>
 	<script src="lib/backbone.js"></script>
-	<script src="lib/d3.min.js"></script>
 	<script src="lib/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="lib/bootstrap.min.css">
 	<link rel="stylesheet" href="lib/bootstrap-theme.min.css">
@@ -156,6 +155,36 @@
   <script id="watch-event" class="col-xs-6 col-sm-4" type="text/template">
   	<h1>Start watching <a href="<%= repo_url %>"><%= repo %></a></h1>
 		<img class="actor-image" src="<%= avatar_url %>" title="<%= name || login %>" alt="<%= name || login %>">
+		<span class="date"><%= created_at %></span>
+  </script>
+
+	<script id="deployment-status-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>EVENT NOT LISTED</h1>
+		<h3><%= type %></h3>
+  </script>
+
+  <script id="deployment-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>EVENT NOT LISTED</h1>
+		<h3><%= type %></h3>
+  </script>
+
+  <script id="download-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>EVENT NOT LISTED</h1>
+		<h3><%= type %></h3>
+  </script>
+
+  <script id="fork-apply-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Applied <a href="<%= 'https://github.com/' + repo + '/commit/' + patch %>">patch</a> to <a href="<%= 'https://github.com/' + repo + '/commit/' + sha %>">commit</a> on <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="status-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>EVENT NOT LISTED</h1>
+		<h3><%= type %></h3>
+  </script>
+
+  <script id="team-add-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Added as an <%= permission %> to <a href="<%= repo_url %>"><%= repo %></a></h1>
 		<span class="date"><%= created_at %></span>
   </script>
 
