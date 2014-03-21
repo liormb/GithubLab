@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>GithubLab</title>
+	<script src="lib/jquery-1.11.0.min.js"></script>
+	<script src="lib/underscore.js"></script>
+	<script src="lib/backbone.js"></script>
+	<script src="lib/d3.min.js"></script>
+	<script src="lib/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="lib/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="stylesheets/styles.css">
+</head>
+<body>
+	<div id="main-container" class="container col-lg-12">
+		<div class="top-header-container col-lg-12">
+			<header class="container col-lg-10 col-md-offset-1">
+				<a href="/"><div class="logo">GithubLab</div></a>
+				<div id="user-container"></div>
+			</header>
+
+			<div id="input-container" class="row">
+				  <div class="col-lg-4 col-lg-offset-4">
+				    <div class="input-group">
+				      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
+				      <span class="input-group-btn">
+				        <button id="user-submit" class="btn btn-warning" type="button">Lab</button>
+				      </span>
+				    </div>
+				  </div>
+				</div>
+		</div>
+
+		<div class="container col-md-10 col-md-offset-1 clearfix">
+			<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
+		</div>
+
+		<footer class="container clearfix">Copyright © <span class="year"></span><a href="https://github.com/liormb" target="_blank"> Lior Elrom </a>. All rights reserved.</footer>
+	</div>
+
+	<!-- ============================ Page Templates ============================ -->
+
+	<!-- User Information -->
+	<script id="user-information" type="text/template">
+		<a href="<%= html_url %>" target="_blank">
+			<img class="user-image img-thumbnail" src="<%= avatar_url %>" title="<%= name || username %>" alt="<%= name || username %>">
+		</a>
+		<h1><a href="<%= html_url %>"><%= name || username %></a></h1>
+		<h2><%= "Joined on " + timeStampToString(created_at) %></h2>
+	</script>
+
+	<!-- Timeline Events -->
+	<script id="delete-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Deleted <%= ref_type %> from <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<h3>referance: <%= ref %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="release-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Published a new <a href="<%= html_url %>"> release </a> from <a href="<%= repo_url %>"><%= repo %></a></h1>
+  	<img class="actor-image" src="<%= avatar_url %>" title="<%= login %>" alt="<%= login %>">
+		<h3><%= tag_name %></h3>
+		<h3><%= body %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="public-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Opened <a href="<%= repo_url %>"><%= repo %></a> as an open source</h1>
+  	<img class="actor-image" src="<%= actor_url %>" title="<%= login %>" alt="<%= login %>">
+		<span class="date"><%= created_at %></span>
+  </script>
+
+	<script id="pull-request-review-comment-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Commented on a <a href="<%= html_url %>">pull request</a> for <a href="<%= repo_url %>"><%= repo %></a></h1>
+  	<img class="actor-image" src="<%= actor_url %>" title="<%= login %>" alt="<%= login %>">
+		<h3><%= body %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+	<script id="commit-comment-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Commented on a <a href="<%= comment_url %>">commit</a> on <a href="<%= repo_url %>"><%= repo %></a></h1>
+  	<img class="actor-image" src="<%= user_avatar_url %>" title="<%= login %>" alt="<%= login %>">
+		<% if (body){ %><h3><%= body %></h3><% } %>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="create-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Created: <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="push-event" class="col-xs-6 col-sm-4" type="text/template">
+		<h1>Pushed <%= count %> commit(s) to <a href="<%= repo_url %>"><%= repo %></a></h1>
+  	<ul id="commits-container"></ul>
+  	<% if (events.length > 4){ %>
+			<button id="more-submit" class="btn btn-default btn-xs" type="button">more</button>
+		<% } %>
+		<span class="date"><%= created_at %></span>
+	</script>
+
+  <script id="follow-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Start following <a href="<%= target_url %>"><%= target_name || target_login %></h1>
+		<img class="actor-image" src="<%= target_avatar_url %>" title="<%= target_name || target_login %>" alt="<%= target_name || target_login %>">
+		<span class="date"><%= created_at %></span>
+  </script>
+
+	<script id="fork-event" class="col-xs-6 col-sm-4" type="text/template">
+		<h1>Forked <a href="<%= full_name_url %>"><%= full_name %></a> from <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<% if (description != ""){ %>
+			<h3><%= description %></h3>
+		<% } %>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="gist-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Created a <a href="<%= gist_url %>">gist</a></h1>
+  	<h3><%= name %></h3>
+		<% if (desc != ""){ %>
+			<h3><%= desc %></h3>
+		<% } %>
+		<h3><%= snippet %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="gollum-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Updated <%= page_count %> page(s) for <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<h3><%= page_name %></h3>
+		<span class="date"><%= created_at %></span>
+  </script> 
+
+  <script id="issue-comment-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Commented on an <a href="<%= issue_url %>">issue</a> on <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<h3><%= issue %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="issues-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Opened an <a href="<%= issue_url %>">issue</a> on <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<h2><%= title %></h2>
+		<h3><%= body %></h3>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="member-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Added as a collaborator to <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="pull-request-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Opened a <a href="<%= event_type_url %>">pull request</a> for <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="watch-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>Start watching <a href="<%= repo_url %>"><%= repo %></a></h1>
+		<img class="actor-image" src="<%= avatar_url %>" title="<%= name || login %>" alt="<%= name || login %>">
+		<span class="date"><%= created_at %></span>
+  </script>
+
+  <script id="default-event" class="col-xs-6 col-sm-4" type="text/template">
+  	<h1>EVENT NOT LISTED</h1>
+		<h3><%= type %></h3>
+  </script>
+
+	<!-- Single Commit Event 151-->
+	<script id="commit-item" type="text/template">
+		<% var sha = (payload.head) ? payload.head : payload.shas[0][0]; %>
+		<% var message = (payload.commits) ? ((payload.commits.length>0) ? payload.commits[0].message : "Unknown") : payload.shas[0][2]; %>
+		<a href="<%= 'https://github.com/' + repo.name + '/commit/' + sha %>">
+			<h3><span><%= sha.substring(0,7) %></span></h3>
+			<h3><%= message %><h3>
+		</a>
+	</script>
+
+	<!-- Single Commit Message -->
+	<script id="event-item" type="text/template">
+		<% var message = (payload.commits) ? ((payload.commits.length>0) ? payload.commits[0].message : "Unknown") : payload.shas[0][2]; %>
+		<%= message %>
+	</script>
+
+	<script src="javascripts/githublab.js"></script>
+</body>
+</html>
