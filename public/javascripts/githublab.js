@@ -116,7 +116,7 @@ var content = function(group) {
 			return {
 				type: event_type,
 				issue: (group[0].payload.issue_id) ? group[0].payload.issue_id : group[0].payload.comment.body.replace(/(<([^>]+)>)/ig,""),
-				issue_url: (group[0].payload.comment_id) ? "https://github.com/repos/omarkhan/coffeedoc/issues/comments/"+group[0].payload.comment_id : group[0].payload.comment.url,
+				issue_url: (group[0].payload.comment_id) ? "https://github.com/repos/"+group[0].repo.name+"/issues/comments/"+group[0].payload.comment_id : group[0].payload.comment.html_url,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)
@@ -212,7 +212,8 @@ var content = function(group) {
 			};
 		default: 
 			return {
-				type: "DefaultEvent",
+				type: event_type,
+				created_at: timeStampToString(group[0].created_at)
 			};
 	}
 };
@@ -372,7 +373,7 @@ var TimelineListView = Backbone.View.extend({
 	renderTimelineHeight: function() {
 		/* setting the timeline height according to its content */
 		var pos = this.childrenBottomPosition();
-		this.$el.css({ height: Math.max(pos.left, pos.right) });
+		this.$el.css({ height: Math.max(pos.left, pos.right) + 40 + 84 });
 	},
 	refreshTimeline: function(e) {
 		e.stopPropagation();
@@ -535,7 +536,7 @@ var User = Backbone.Model.extend({
 				events = events.concat(response.responseJSON);
 			});
 			/* making groups */
-			groups = self.createGroupEvents(events);
+			var groups = self.createGroupEvents(events);
 
 			/* bulding a list of timeline models from groups  */
 			var timelines = [];
@@ -554,7 +555,7 @@ var User = Backbone.Model.extend({
 			groups[index].push(events[i-1]);
 			if (!(events[i-1].type == 'PushEvent' && events[i].type == 'PushEvent' && 
 					timeStampToString(events[i].created_at) == timeStampToString(events[i-1].created_at))) {
-				if (!(events[i-1].type == "CreateEvent" && events[i-1].repo.id == events[i].repo.id)) {
+				if (!(events[i-1].type == "CreateEvent" && events[i].type == "CreateEvent" && events[i-1].repo.id == events[i].repo.id)) {
 					groups.push([]);
 					index++;
 				}
