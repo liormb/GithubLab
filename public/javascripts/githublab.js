@@ -1,6 +1,6 @@
 
 var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
-var pages = 10;          // number of pages returning from Github API per user
+var pages = 5;           // number of pages returning from Github API per user
 var timelineTopPos = 40; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
 var commitsPerEvent = 4; // default number of commits shown in each event
@@ -47,21 +47,6 @@ var content = function(group) {
 				ref: group[0].payload.ref,
 				repo: group[0].repo.name,
 				repo_url: "https://github.com/" + group[0].repo.name,
-				created_at: timeStampToString(group[0].created_at)
-			};
-		case "DeploymentEvent":
-			return {
-				type: event_type,
-				created_at: timeStampToString(group[0].created_at)
-			};
-		case "DeploymentStatusEvent":
-			return {
-				type: event_type,
-				created_at: timeStampToString(group[0].created_at)
-			};
-		case "DownloadEvent":
-			return {
-				type: event_type,
 				created_at: timeStampToString(group[0].created_at)
 			};
 		case "FollowEvent":
@@ -187,11 +172,6 @@ var content = function(group) {
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)
 			};
-		case "StatusEvent":
-			return {
-				type: event_type,
-				created_at: timeStampToString(group[0].created_at)
-			};
 		case "TeamAddEvent":
 			return {
 				type: event_type,
@@ -210,9 +190,39 @@ var content = function(group) {
 				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)
 			};
+		case "DeploymentEvent":
+			return {
+				type: event_type,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
+				created_at: timeStampToString(group[0].created_at)
+			};
+		case "DeploymentStatusEvent":
+			return {
+				type: event_type,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
+				created_at: timeStampToString(group[0].created_at)
+			};
+		case "DownloadEvent":
+			return {
+				type: event_type,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
+				created_at: timeStampToString(group[0].created_at)
+			};
+		case "StatusEvent":
+			return {
+				type: event_type,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
+				created_at: timeStampToString(group[0].created_at)
+			};
 		default: 
 			return {
 				type: event_type,
+				repo: group[0].repo.name,
+				repo_url: "https://github.com/" + group[0].repo.name,
 				created_at: timeStampToString(group[0].created_at)
 			};
 	}
@@ -515,6 +525,7 @@ var User = Backbone.Model.extend({
 	errorResponce: function(user, xhr) {
 		/* handle user or server errors */
 		console.log("["+xhr.status+"]" + xhr.responseJSON.message);
+		location.reload();
 	},
 	getUserEvents: function() {
 		/* fetching user github's events from Github API */ 
@@ -660,6 +671,7 @@ function homePage() {
 			_.each(shuffle(data), function(user) {
 				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
 			});
+			$('div#main').css({display: 'block'});
 		}
 	});
 };

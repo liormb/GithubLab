@@ -35,6 +35,7 @@ footer a:hover {
 	overflow-x: hidden; 
 }
 #main {
+	display: none;
 	position: fixed;
 	top: 180px;
 	left: -15px;
