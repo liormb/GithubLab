@@ -21,7 +21,7 @@ By [Lior Elrom](http://liormb.com/).
 
 GithubLab is a one-page application that was built using ```Backbone.js``` and ```Underscore.js``` along with ```jQuery``` and of course the ```Github API``` (which currently supporting [16 different events](https://developer.github.com/v3/activity/events/)).
 
-#### The application is using 5 different objects, and devided into _Models_, _Collections_ and _Views_:
+#### The application is using 5 different objects, that each of them is divided into _Models_, _Collections_ and _Views_:
 
 1. **UserInputView** - handle the user input (sanitize and escape bad charicters)
 2. **User** - handle the user itself in regards of its information and public events
