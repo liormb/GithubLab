@@ -6,28 +6,28 @@ By [Lior Elrom](http://liormb.com/).
 ## GithubLab is a different perspective of presenting a github user activity.
 
 ![GithubLab](images/githublab-image1.png)
-#####Welcome screen with different github users
+######Welcome screen with different github users
 
-### It allows a more clear, vizual and kohirent way of presenting a user Github public activities on a vertical timeline.
+#### It allows a more clear, vizual and kohirent way of presenting a user Github public activities on a vertical timeline.
 
-### The idea of presenting Github public activities on a timeline was taken from Facebook and other application that are using a timeline as a better way of presenting data to a user.
+- - -
+
+#### The idea of presenting Github public activities on a timeline was taken from Facebook and other application that are using a timeline as a better way of presenting data to a user.
 
 ![Example2](images/githublab-image2.png)
-#####Searching result of a user presented on a timeline
+######Searching result of a user presented on a timeline
 
 ## Technologies
 
-GithubLab is a one-page application that was built using ```Backbone.js``` and ```Underscore.js``` along with ```jQuery``` and of course the ```Github API```.
+GithubLab is a one-page application that was built using ```Backbone.js``` and ```Underscore.js``` along with ```jQuery``` and of course the ```Github API``` (which currently supporting [16 different events](https://developer.github.com/v3/activity/events/)).
 
-The ```Github API``` is currently supporting (16 different events)[https://developer.github.com/v3/activity/events/] 
+#### The application is using 5 different objects, and devided into _Models_, _Collections_ and _Views_:
 
-** The application is using 5 different objects, and devided into **_Models_**, **_Collections_** and **_Views_**: **
-
-1. ** UserInputView ** - handle the user input (sanitize and escape bad charicters)
-2. ** User ** - handle the user itself in regards of its information and public events
-3. ** Responce ** - getting all responses from the ```Github API```
-4. ** Timeline ** - building the timeline and its groups
-5. ** Commit ** - handle all the commits when a _Push Event_ occur
+1. **UserInputView** - handle the user input (sanitize and escape bad charicters)
+2. **User** - handle the user itself in regards of its information and public events
+3. **Responce** - getting all responses from the ```Github API```
+4. **Timeline** - building the timeline and its groups
+5. **Commit** - handle all the commits when a _Push Event_ occur
 
 ###
 
