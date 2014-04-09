@@ -1,6 +1,6 @@
 
 var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
-var pages = 5;           // number of pages returning from Github API per user
+var pages = 10;           // number of pages returning from Github API per user
 var timelineTopPos = 40; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
 var commitsPerEvent = 4; // default number of commits shown in each event
