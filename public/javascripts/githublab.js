@@ -637,6 +637,7 @@ var UserInputView = Backbone.View.extend({
   	event.preventDefault();
   	var username = this.getUserInput();
   	$('#main').remove();
+  	$('html').css({background: 'rgb(245,245,245)'});
 
   	/***** Passing the action to UserListView *****/
   	var users_list_view = new UserListView({ username: username });
@@ -671,7 +672,7 @@ function homePage() {
 			_.each(shuffle(data), function(user) {
 				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
 			});
-			$('div#main').css({display: 'block'});
+			$('div#main').fadeIn();
 		}
 	});
 };

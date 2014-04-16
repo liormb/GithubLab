@@ -1,10 +1,11 @@
 
 html {
-	background: url(../images/page-bg.jpg) center center no-repeat fixed;
+	/*background: url(../images/page-bg.jpg) center center no-repeat fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: cover;
+  background-size: cover;*/
+  background: rgb(50,50,50);
 }
 footer {
 	display: none;
