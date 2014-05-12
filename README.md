@@ -3,6 +3,8 @@ By [Lior Elrom](http://liormb.com/).
 
 #### <http://githublab.herokuapp.com>
 
+- - -
+
 ## GithubLab is a different perspective of presenting a github user activity.
 
 ![GithubLab](images/githublab-image1.png)
