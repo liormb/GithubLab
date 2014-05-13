@@ -669,10 +669,11 @@ function homePage() {
 		dataType: 'json',
 		success: function(data) {
 			$('body').append("<div id='main' class='col-lg-12'></div>");
-			_.each(shuffle(data), function(user) {
+			var users = shuffle(data);
+			_.each(users, function(user) {
 				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
 			});
-			$('div#main').fadeIn();
+			$('div#main').fadeIn(3000);
 		}
 	});
 };
