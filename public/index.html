@@ -13,14 +13,13 @@
 	<link rel="stylesheet" href="stylesheets/styles.css">
 </head>
 <body>
-	<div id="main-container" class="container col-lg-12">
-		<div class="top-header-container col-lg-12">
-			<header class="container col-lg-10 col-md-offset-1">
-				<a href="/"><div class="logo">GithubLab</div></a>
-				<div id="user-container"></div>
-			</header>
+	<div id="main-container" class="container">
 
-			<div id="input-container" class="row">
+		<header>
+			<div class="header-container container-fluid">
+				<a href="/"><div class="logo">GithubLab</div></a>
+
+				<div id="input-container" class="row">
 				  <div class="col-lg-4 col-lg-offset-4">
 				    <div class="input-group">
 				      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
@@ -30,9 +29,31 @@
 				    </div>
 				  </div>
 				</div>
-		</div>
 
-		<div id="page-container" class="container col-md-10 col-md-offset-1 clearfix">
+			</div>	
+		</header>
+		
+
+		<!-- <div class="top-header-container container-fluid">
+			<header class="row">
+				<a href="/"><div class="logo">GithubLab</div></a>
+				<div id="user-container"></div>
+			</header>
+
+			<div id="input-container" class="row">
+			  <div class="col-lg-4 col-lg-offset-4">
+			    <div class="input-group">
+			      <input id="user-name" type="text" class="form-control" name="username" placeholder="Github Username" autofocus>
+			      <span class="input-group-btn">
+			        <button id="user-submit" class="btn btn-warning" type="button">Lab</button>
+			      </span>
+			    </div>
+			  </div>
+			</div>
+		</div> -->
+
+		<div id="page-container" class="container-fluid col-md-10 col-md-offset-1 clearfix">
+			<div id="user-container"></div>
 			<ul id="timeline-container" class="container col-md-10 col-md-offset-1"></ul>
 		</div>
 
@@ -47,7 +68,6 @@
 			<img class="user-image img-thumbnail" src="<%= avatar_url %>" title="<%= name || username %>" alt="<%= name || username %>">
 		</a>
 		<h1><a href="<%= html_url %>" target="_blank"><%= name || username %></a></h1>
-		<h2><%= "Joined on " + timeStampToString(created_at) %></h2>
 	</script>
 
 	<!-- Timeline Events -->

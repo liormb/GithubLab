@@ -1,11 +1,13 @@
 
 html {
-	/*background: url(../images/page-bg.jpg) center center no-repeat fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;*/
-  background: rgb(50,50,50);
+  background: rgb(250,250,250);
+}
+header {
+	position: fixed;
+	height: 65px;
+	background: rgb(63,63,63);
+	border-bottom: 4px solid rgb(220,220,220);
+	z-index: 9999;
 }
 footer {
 	display: none;
@@ -13,13 +15,15 @@ footer {
 	left: 0;
 	bottom: -180px;
 	width: 100% !important;
-	height: 80px;
-	border-top: 4px solid rgb(160,160,160);
-	padding-top: 30px;
+	height: 40px;
+	border-top: 4px solid rgb(220,220,220);
+	padding-top: 8px;
 	text-align: center;
 	line-height: 20px;
-	background: rgb(145,145,145);
+	background: rgb(63,63,63);
 	color: rgb(255,255,255);
+	font-weight: 100;
+	letter-spacing: 0px;
 }
 footer a {
 	color: orange;
@@ -38,7 +42,7 @@ footer a:hover {
 #main {
 	display: none;
 	position: fixed;
-	top: 180px;
+	top: 65px;
 	left: -15px;
 	width: 120%;
 	height: 120%;
@@ -47,27 +51,20 @@ footer a:hover {
 }
 .users-image {
 	float: left;
-	height: 111px;
+	height: 120px;
 	border: 1px solid rgb(220,220,220);
-}
-.top-header-container {
-	position: fixed;
-	top: 0;
-	width: 100%;
-	height: 180px;
-	border-bottom: 4px solid rgb(160,160,160);
-	background: rgb(245,245,245) url(../images/services.jpg) center center no-repeat;
-	-webkit-background-size: cover;
-	background-size: cover;
-	z-index: 999;
 }
 .logo {
 	position: absolute;
-	top: 28px;
+	top: 14px;
 	left: 15px;
-	background: url(../images/logo.png) no-repeat;
-	width: 250px;
-	height: 80px;
+	background: url(../images/logo.png) center center no-repeat;
+	-webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+	width: 140px;
+	height: 40px;
 	text-indent: -9999px;
 }
 .user-image {
@@ -76,21 +73,10 @@ footer a:hover {
 	right: 15px;
 	height: 100px;
 }
-.lab {
-	position: absolute;
-	top: 100px;
-	left: -126px;
-	background: url(../images/lab.png) no-repeat;
-	width: 250px;
-	height: 250px;
-}
-#input-container {
+#user-container {
 	position: fixed;
-	top: 120px;
-	width: 100%;
-	height: 60px;
-	border-top: 1px solid rgb(80,80,80);
-	background: rgba(200,200,200,.3);
+	top: 80px;
+	right: 10px;
 }
 #user-container h1,
 #user-container h2,
@@ -100,34 +86,43 @@ footer a:hover {
 	margin: 6px;
 	color: rgb(255,255,255);
 	font-weight: normal; 
+	width: 100px;
+	position: fixed;
+	top: 162px;
+	right: 20px;
 }
 #user-container h1 {
 	margin-top: 38px;
 }
 #user-container h1 a {
-	color: orange;
+	color: rgb(60,60,60);
+}
+#input-container {
+	position: relative;
+	top: 0;
+	width: 100%;
+	height: 65px;
 }
 #input-container > div {
-	top: 11px;
+	top: 14px;
 }
-
 #page-container {
 	position: relative;
-	top: 180px;
+	top: 0px;
 }
 #timeline-container {
 	position: relative;
-	top: 0;
+	top: 120px;
 	padding: 0;
-	padding-top: 180px;
+	padding-top: 65px;
 }
 #timeline-line {
 	position: relative;
-	top: -180px;
+	top: -120px;
 	left: -webkit-calc(50% - 2px);
 	width: 4px;
-	height: -webkit-calc(100% + 180px);
-	background: rgb(160,160,160);
+	height: -webkit-calc(100% + 150px);
+	background: rgb(220,220,220);
 }
 #timeline-container > li {
 	word-wrap: break-word;
@@ -201,8 +196,8 @@ span.square-right {
   width: 6px; 
   height: 14px;
   margin-top: -7px;
-  border-top: 4px solid rgb(245,245,245);
-  border-bottom: 4px solid rgb(245,245,245);
+  border-top: 4px solid rgb(250,250,250);
+  border-bottom: 4px solid rgb(250,250,250);
   background: orange;
 }
 span.square-left {

@@ -1,7 +1,7 @@
 
 var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
-var pages = 10;           // number of pages returning from Github API per user
-var timelineTopPos = 40; // top start position of the timeline
+var pages = 1;           // number of pages returning from Github API per user
+var timelineTopPos = 0; // top start position of the timeline
 var marginBottom = 20;   // the margin between each timeline item
 var commitsPerEvent = 4; // default number of commits shown in each event
 var Months = { Jan:"January", Feb:"February", Mar:"March", Apr:"April", May:"May", Jun:"June", Jul:"July", Aug:"August", Sep:"September", Oct:"October", Nov:"November", Dec:"December" };
@@ -594,7 +594,7 @@ var UserView = Backbone.View.extend({
 });
 
 /* showing all users on screen */
-/* this vertion currently contain one user per page */
+/* this version currently contain one user per page */
 var UserListView = Backbone.View.extend({
 	el: $('#user-container'),
 	initialize: function(options) {
@@ -637,7 +637,6 @@ var UserInputView = Backbone.View.extend({
   	event.preventDefault();
   	var username = this.getUserInput();
   	$('#main').remove();
-  	$('html').css({background: 'rgb(245,245,245)'});
 
   	/***** Passing the action to UserListView *****/
   	var users_list_view = new UserListView({ username: username });
