@@ -1,35 +1,14 @@
 
-html {
-  background: rgb(250,250,250);
+body {
+	background: rgb(250,250,250);
 }
 header {
 	position: fixed;
+	width: 100%;
 	height: 65px;
 	background: rgb(63,63,63);
 	border-bottom: 4px solid rgb(220,220,220);
 	z-index: 9999;
-}
-footer {
-	display: none;
-	position: absolute;
-	left: 0;
-	bottom: -180px;
-	width: 100% !important;
-	height: 40px;
-	border-top: 4px solid rgb(220,220,220);
-	padding-top: 8px;
-	text-align: center;
-	line-height: 20px;
-	background: rgb(63,63,63);
-	color: rgb(255,255,255);
-	font-weight: 100;
-	letter-spacing: 0px;
-}
-footer a {
-	color: orange;
-}
-footer a:hover {
-	color: rgb(255,255,255);
 }
 #main-container {
 	position: relative;
@@ -54,10 +33,26 @@ footer a:hover {
 	height: 120px;
 	border: 1px solid rgb(220,220,220);
 }
+.loading {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: url(../images/loading.gif) center center no-repeat;
+	width: 300px;
+	height: 300px;
+	margin: auto;
+	-webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
 .logo {
 	position: absolute;
 	top: 14px;
-	left: 15px;
+	left: 20px;
 	background: url(../images/logo.png) center center no-repeat;
 	-webkit-background-size: cover;
   -moz-background-size: cover;
@@ -69,8 +64,8 @@ footer a:hover {
 }
 .user-image {
 	position: absolute;
-	top: 11px;
-	right: 15px;
+	top: 20px;
+	right: 20px;
 	height: 100px;
 }
 #user-container {
@@ -78,21 +73,19 @@ footer a:hover {
 	top: 80px;
 	right: 10px;
 }
-#user-container h1,
-#user-container h2,
-#user-container h3 {
+#user-container h1 {
+	position: fixed;
+	top: 162px;
+	right: 20px;
 	text-align: center;
 	font-size: 16px;
 	margin: 6px;
 	color: rgb(255,255,255);
 	font-weight: normal; 
 	width: 100px;
-	position: fixed;
-	top: 162px;
-	right: 20px;
 }
 #user-container h1 {
-	margin-top: 38px;
+	margin-top: 48px;
 }
 #user-container h1 a {
 	color: rgb(60,60,60);
@@ -100,7 +93,6 @@ footer a:hover {
 #input-container {
 	position: relative;
 	top: 0;
-	width: 100%;
 	height: 65px;
 }
 #input-container > div {
@@ -108,20 +100,21 @@ footer a:hover {
 }
 #page-container {
 	position: relative;
-	top: 0px;
+	top: 65px;
 }
 #timeline-container {
 	position: relative;
-	top: 120px;
-	padding: 0;
-	padding-top: 65px;
+	margin-top: 40px;
 }
 #timeline-line {
-	position: relative;
-	top: -120px;
+	position: absolute;
 	left: -webkit-calc(50% - 2px);
+	left: -moz-calc(50% - 2px);
+	left: -o-calc(50% - 2px);
+	left: -ms-calc(50% - 2px);
+	left: calc(50% - 2px);
 	width: 4px;
-	height: -webkit-calc(100% + 150px);
+	height: 100%;
 	background: rgb(220,220,220);
 }
 #timeline-container > li {
@@ -133,6 +126,8 @@ footer a:hover {
 	border-radius: 4px;
 	-webkit-box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
 	-moz-box-box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
+	-o-box-box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
+	-ms-box-box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
 	box-shadow: 3px 3px 8px 3px rgba(160,160,160,.2);
 }
 #timeline-container > li > ul {
@@ -168,6 +163,7 @@ button#more-submit {
 span.date {
 	float: right;
 	margin-top: 10px;
+	color: rgb(160,160,160);
 	clear: both;
 }
 .actor-image {
@@ -179,8 +175,7 @@ span.date {
 	display: none;
 }
 .create-event {
-	background: rgb(236,255,252) !important;
-	background: rgb(240,240,240) !important;
+	background: rgb(242,242,242) !important;
 	left: 25%;
 	text-align: center !important;
 }
@@ -188,7 +183,34 @@ span.date {
 	text-align: center !important;
 	float: none;
 }
+ul {
+	list-style-type: none;
+}
+footer {
+	display: none;
+	position: relative;
+	left: 0;
+	width: 100% !important;
+	height: 40px;
+	border-top: 4px solid rgb(220,220,220);
+	padding-top: 8px;
+	text-align: center;
+	line-height: 20px;
+	background: rgb(63,63,63);
+	color: rgb(255,255,255);
+	font-weight: 100;
+	letter-spacing: 0px;
+}
+footer a {
+	color: orange;
+}
+footer a:hover {
+	color: rgb(255,255,255);
+}
 
+/* Special Classes */
+
+/* square on timeline */
 span.square-left,
 span.square-right {
 	position: absolute;
@@ -216,12 +238,12 @@ span.square-right {
 }
 .tooltip-left:after, .tooltip-left:before,
 .tooltip-right:after, .tooltip-right:before {
+	position: absolute;
 	top: 50%;
-	border: solid transparent;
 	content: " ";
 	height: 0;
 	width: 0;
-	position: absolute;
+	border: solid transparent;
 	pointer-events: none;
 }
 .tooltip-left:after, .tooltip-left:before {
@@ -254,16 +276,14 @@ span.square-right {
 .tooltip-right:before {
 	border-left-color: rgb(200,200,200);
 }
-ul {
-	list-style-type: none;
-}
+
+/* responsive media */
 
 @media (max-width: 1200px) {
 	header { margin-left: auto !important; }
 }
 @media (max-width: 1000px) {
   .user-image { right: 6px;}
-  .logo { left: 6px; top: 24px; }
   #user-container h1 { margin-top: 34px; }
   #user-container div h1, #user-container div h2 { display: inline; font-size: 16px; margin-left: -2px; }
   #user-container div { margin-top: 90px; }

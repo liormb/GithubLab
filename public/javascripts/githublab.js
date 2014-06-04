@@ -1,4 +1,5 @@
 
+var $pageContainer = $('#page-container');
 var $timeline = "<div id='timeline-line'></div>"; // the timeline vertical element
 var pages = 1;           // number of pages returning from Github API per user
 var timelineTopPos = 0; // top start position of the timeline
@@ -383,7 +384,7 @@ var TimelineListView = Backbone.View.extend({
 	renderTimelineHeight: function() {
 		/* setting the timeline height according to its content */
 		var pos = this.childrenBottomPosition();
-		this.$el.css({ height: Math.max(pos.left, pos.right) + 40 + 84 });
+		this.$el.css({ height: Math.max(pos.left, pos.right) + 40 });
 	},
 	refreshTimeline: function(e) {
 		e.stopPropagation();
@@ -394,7 +395,8 @@ var TimelineListView = Backbone.View.extend({
 
 		var self = this;
   	var children = $(e.delegateTarget).find('>li');
-  	this.$el.empty().prepend($timeline); /* appending the timeline itself */
+  	this.$el.empty();
+  	$pageContainer.prepend($timeline); /* appending the timeline itself */
 
   	/* clearing and removing old classes and timeline squares */
   	children.css({top:'', left:'', right:''})
@@ -488,7 +490,8 @@ var TimelineListView = Backbone.View.extend({
 	render: function() {
 		this.renderFooter();
 		var self = this;
-		this.$el.empty().prepend($timeline);
+		this.$el.empty();
+		$pageContainer.prepend($timeline);
 		_.each(this.collection.models, function(group) {
 			self.renderTimeline(group);
 		});
@@ -662,17 +665,30 @@ function shuffle(array) {
 
 // Just a placeholder for the backgroud till I'll put something else
 function homePage() {
+	$('body').append("<div id='main' class='col-lg-12'></div>").append("<div class='loading'></div>");
+
 	$.ajax({
 		url: "https://api.github.com/users",
 		type: "get",
 		dataType: 'json',
 		success: function(data) {
-			$('body').append("<div id='main' class='col-lg-12'></div>");
 			var users = shuffle(data);
 			_.each(users, function(user) {
 				$('div#main').append("<img src='"+user.avatar_url+"' class='users-image' title='"+user.login+"' alt='"+user.login+"'>");
 			});
-			$('div#main').fadeIn(3000);
+
+			// waiting for all user's images to be loaded
+			var len = $('#main').find('img').length;
+			var counter = 0;
+			$('#main img').on("load", function(){
+				counter++;
+				if (len === counter){
+					$('.loading').remove();
+					$(this).parent().fadeIn(400);
+				}
+			}).each(function(){
+				if (this.complete) $(this).trigger("load");
+			});
 		}
 	});
 };
