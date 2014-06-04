@@ -7,7 +7,7 @@ By [Lior Elrom](http://liormb.com/).
 
 ## GithubLab is a different perspective of presenting a github user activity.
 
-![GithubLab](images/githublab-image1.png)
+![GithubLab](public/images/githublab-image1.png)
 ######Welcome screen with different github users
 
 #### It allows a more clear, vizual and kohirent way of presenting a user Github public activities on a vertical timeline.
@@ -16,7 +16,7 @@ By [Lior Elrom](http://liormb.com/).
 
 #### The idea of presenting Github public activities on a timeline was taken from Facebook and other application that are using a timeline as a better way of presenting data to a user.
 
-![Example2](images/githublab-image2.png)
+![Example2](public/images/githublab-image2.png)
 ######Searching result of a user presented on a timeline
 
 ## Technologies
