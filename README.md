@@ -5,7 +5,7 @@ By [Lior Elrom](http://liormb.com/).
 
 - - -
 
-## GithubLab is a different perspective of presenting a github user activity.
+### GithubLab is a different perspective of presenting a github user activity.
 
 ![GithubLab](public/images/githublab-image1.png)
 ######Welcome screen with different github users
